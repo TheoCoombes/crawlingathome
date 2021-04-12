@@ -24,7 +24,7 @@ class __node:
 
         if r.status_code != 200:
             try:
-                self.log("Crashed")
+                self.log("Crashed", crashed=True)
             except:
                 pass
             raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
@@ -39,7 +39,7 @@ class __node:
 
         if r.status_code != 200:
             try:
-                self.log("Crashed")
+                self.log("Crashed", crashed=True)
             except:
                 pass
             raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
@@ -57,7 +57,7 @@ class __node:
 
         if r.status_code != 200:
             try:
-                self.log("Crashed")
+                self.log("Crashed", crashed=True)
             except:
                 pass
             raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
@@ -99,7 +99,7 @@ class __node:
         print("[crawling@home] finished uploading")
 
         if r.returncode != 0:
-            self.log("Crashed")
+            self.log("Crashed", crashed=True)
             raise RuntimeError(f"[crawling@home] Something went wrong when uploading, returned code {r.returncode}:\n{r.stderr}")
         
         self.__markjobasdone()
@@ -112,15 +112,15 @@ class __node:
         print("[crawling@home] marked job as done")
 
     # Logs the string progress into the server.
-    def log(self, progress : str):
+    def log(self, progress : str, crashed=False):
         data = {"name": self.name, "progress": progress}
 
         r = requests.post(self.url + "api/updateProgress", json=data)
         print("[crawling@home] logged new progress data")
 
-        if r.status_code != 200:
+        if r.status_code != 200 and not crashed:
             try:
-                self.log("Crashed")
+                self.log("Crashed", crashed=True)
             except:
                 pass
             raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
