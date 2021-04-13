@@ -1,5 +1,7 @@
 from subprocess import run, PIPE
 from time import sleep
+from json import load
+import numpy as np
 import requests
 import shutil
 import gzip
@@ -62,7 +64,10 @@ class __node:
                 pass
             raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
         else:
-            self.shard = r.text
+            data = load(r.text)
+            self.shard = data["url"]
+            self.start_id = np.int64(data["start_id"])
+            self.end_id = np.int64(data["end_id"])
             print("[crawling@home] recieved new job")
     
     # Downloads the current job's shard to the current directory (./shard.wat)
@@ -70,7 +75,7 @@ class __node:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard")
 
-        with requests.get(self.shard, stream=True) as r:
+        with requests.get(self.shard["url"], stream=True) as r:
             r.raise_for_status()
             with open("temp.gz", 'w+b') as f:
                 for chunk in r.iter_content(chunk_size=8192): 
