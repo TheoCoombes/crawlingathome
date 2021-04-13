@@ -43,30 +43,41 @@ while client.jobCount() > 0:
 client.bye()
 ```
 
-## Reference
+## Methods
 
-### [crawlingathome.init(url="http://localhost:8080", rsync_addr="host@0.0.0.0", rsync_dir="/path/to/data") -> crawlingathome.core.__node](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L10)
+### [crawlingathome.init(url="http://localhost:8080", rsync_addr="host@0.0.0.0", rsync_dir="/path/to/data") -> crawlingathome.core.__node](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L12)
 Creates and returns a new node instance.
 * `url`: the clipdist server URL
 * `rsync_addr`: the IP/SSH address of the storage server.
 * `rsync_dir`: the directory to store the data on the storage server.
 
-### [crawlingathome.core.__node.jobCount() -> int](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L37)
+### [crawlingathome.core.__node.jobCount() -> int](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L39)
 Finds the amount of available jobs from the server, returning an integer.
 
-### [crawlingathome.core.__node.newJob()](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L53)
+### [crawlingathome.core.__node.newJob()](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L55)
 Makes the node send a request to the server, asking for a new job.
 
-### [crawlingathome.core.__node.downloadShard()](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L69)
+### [crawlingathome.core.__node.downloadShard()](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L74)
 Downloads the current job's shard to the current directory (`./shard.wat`)
 
-### [crawlingathome.core.__node.uploadData(path : str)](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L91)
+### [crawlingathome.core.__node.uploadData(path : str)](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L96)
 Uploads the files from `path` to the server, marking the job as complete.
 * `path` (required): the path to the data
 
-### [crawlingathome.core.__node.log(progress : str)](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L115)
+### [crawlingathome.core.__node.log(progress : str)](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L120)
 Logs the string `progress` into the server.
 * `progress` (required): The string detailing the progress, e.g. `"12 / 100 (12%)"`
 
-### [crawlingathome.core.__node.bye()](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L129)
+### [crawlingathome.core.__node.bye()](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L134)
 Removes the node instance from the server, ending all current jobs.
+
+## Variables
+
+### [crawlingathome.core.__node.shard](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L68)
+The URL to the current shard.
+
+### [crawlingathome.core.__node.start_id](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L69)
+The starting ID. Type: `np.int64`.
+
+### [crawlingathome.core.__node.end_id](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L69)
+The ending ID - usually 1 million more than starting ID. Type: `np.int64`.
