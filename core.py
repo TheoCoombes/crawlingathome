@@ -1,6 +1,6 @@
 from subprocess import run, PIPE
 from time import sleep
-from json import load
+from json import loads
 import numpy as np
 import requests
 import shutil
@@ -64,7 +64,7 @@ class __node:
                 pass
             raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
         else:
-            data = load(r.text)
+            data = loads(r.text)
             self.shard = data["url"]
             self.start_id = np.int64(data["start_id"])
             self.end_id = np.int64(data["end_id"])
