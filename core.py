@@ -93,7 +93,7 @@ class __node:
     
 
     # Uploads the files from path to the server, marking the job as complete.
-    def uploadData(self, path : str):
+    def uploadPath(self, path : str):
         print("[crawling@home] uploading...")
         self.log("Uploading shard")
         
