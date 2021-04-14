@@ -60,7 +60,7 @@ Makes the node send a request to the server, asking for a new job.
 ### [crawlingathome.core.__node.downloadShard()](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L74)
 Downloads the current job's shard to the current directory (`./shard.wat`)
 
-### [crawlingathome.core.__node.uploadData(path : str)](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L96)
+### [crawlingathome.core.__node.uploadPath(path : str)](https://github.com/TheoCoombes/clipdist/blob/main/core.py#L96)
 Uploads the files from `path` to the server, marking the job as complete.
 * `path` (required): the path to the data
 
