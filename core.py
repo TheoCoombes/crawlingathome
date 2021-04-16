@@ -14,10 +14,11 @@ def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/pat
     return __node(url=url, rsync_addr=rsync_addr, rsync_dir=rsync_dir)
 
 def streamDownload(url):
-    with requests.get(url, stream=True) as r, open("temp.gz", 'w+b') as f:
+    with requests.get(url, stream=True) as r
         r.raise_for_status()
-        for chunk in r.iter_content(chunk_size=8192): 
-            f.write(chunk)
+        with open("temp.gz", 'w+b') as f:
+            for chunk in r.iter_content(chunk_size=8192): 
+                f.write(chunk)
 
 # The main node instance.
 class __node:
