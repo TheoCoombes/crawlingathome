@@ -134,3 +134,5 @@ class __node:
     def bye(self):
         requests.post(self.url + "api/bye", json={"name": self.name})
         print("[crawling@home] ended run")
+
+GEVENT_SUPPORT=True # Should fix console errors
