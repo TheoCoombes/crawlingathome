@@ -2,11 +2,22 @@ from subprocess import run, PIPE
 from time import sleep
 from json import loads
 import numpy as np
-import requests
+import grequests # For CommonCrawl notebook
 import shutil
 import gzip
 import os
 
+def get(*args **kwargs):
+    rs = (grequests.get(*args, **kwargs),)
+    rturn grequests.map(rs)[0]
+
+def post(*args **kwargs):
+    rs = (grequests.post(*args, **kwargs),)
+    rturn grequests.map(rs)[0]
+
+def get_stream(*args **kwargs):
+    rs = (grequests.get(*args, **kwargs),)
+    rturn grequests.map(rs, stream=True)[0]
 
 # Creates and returns a new node instance.
 def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data"):
@@ -22,7 +33,7 @@ class __node:
         self.rsync_dir = rsync_dir
 
         print("[crawling@home] connecting to crawling@home server...")
-        r = requests.get(self.url + "api/new")
+        r = get(self.url + "api/new")
 
         if r.status_code != 200:
             try:
@@ -37,7 +48,7 @@ class __node:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def jobCount(self):
-        r = requests.get(self.url + "api/jobCount")
+        r = get(self.url + "api/jobCount")
 
         if r.status_code != 200:
             try:
@@ -55,7 +66,7 @@ class __node:
     def newJob(self):
         print("[crawling@home] looking for new job...")
 
-        r = requests.post(self.url + "api/newJob", json={"name": self.name})
+        r = post(self.url + "api/newJob", json={"name": self.name})
 
         if r.status_code != 200:
             try:
@@ -75,7 +86,7 @@ class __node:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard")
 
-        with requests.get(self.shard, stream=True) as r:
+        with get_stream(self.shard, stream=True) as r:
             r.raise_for_status()
             with open("temp.gz", 'w+b') as f:
                 for chunk in r.iter_content(chunk_size=8192): 
@@ -113,14 +124,14 @@ class __node:
 
     # Marks a job as completed/done. (do NOT use in scripts)
     def __markjobasdone(self):
-        requests.post(self.url + "api/markAsDone", json={"name": self.name})
+        post(self.url + "api/markAsDone", json={"name": self.name})
         print("[crawling@home] marked job as done")
 
     # Logs the string progress into the server.
     def log(self, progress : str, crashed=False):
         data = {"name": self.name, "progress": progress}
 
-        r = requests.post(self.url + "api/updateProgress", json=data)
+        r = post(self.url + "api/updateProgress", json=data)
         print("[crawling@home] logged new progress data")
 
         if r.status_code != 200 and not crashed:
@@ -132,5 +143,5 @@ class __node:
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self):
-        requests.post(self.url + "api/bye", json={"name": self.name})
+        post(self.url + "api/bye", json={"name": self.name})
         print("[crawling@home] ended run")
