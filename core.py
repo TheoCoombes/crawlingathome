@@ -83,7 +83,7 @@ class __node:
         self.log("Downloading shard")
 
         t = Thread(target=streamDownload, args=(self.shard,))
-        
+        t.start()
         t.join()
         
         with gzip.open('temp.gz', 'rb') as f_in:
