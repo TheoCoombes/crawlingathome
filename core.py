@@ -86,7 +86,7 @@ class __node:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard")
 
-        with get_stream(self.shard, stream=True) as r:
+        with get_stream(self.shard) as r:
             r.raise_for_status()
             with open("temp.gz", 'w+b') as f:
                 for chunk in r.iter_content(chunk_size=8192): 
