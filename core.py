@@ -7,15 +7,15 @@ import shutil
 import gzip
 import os
 
-def get(*args **kwargs):
+def get(*args, **kwargs):
     rs = (grequests.get(*args, **kwargs),)
     rturn grequests.map(rs)[0]
 
-def post(*args **kwargs):
+def post(*args, **kwargs):
     rs = (grequests.post(*args, **kwargs),)
     rturn grequests.map(rs)[0]
 
-def get_stream(*args **kwargs):
+def get_stream(*args, **kwargs):
     rs = (grequests.get(*args, **kwargs),)
     rturn grequests.map(rs, stream=True)[0]
 
