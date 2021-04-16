@@ -1,27 +1,24 @@
 from subprocess import run, PIPE
+from threading import Thread
 from time import sleep
 from json import loads
 import numpy as np
-import grequests # For CommonCrawl notebook
+import requests
 import shutil
 import gzip
 import os
 
-def get(*args, **kwargs):
-    rs = (grequests.get(*args, **kwargs),)
-    return grequests.map(rs)[0]
-
-def post(*args, **kwargs):
-    rs = (grequests.post(*args, **kwargs),)
-    return grequests.map(rs)[0]
-
-def get_stream(*args, **kwargs):
-    rs = (grequests.get(*args, **kwargs),)
-    return grequests.map(rs, stream=True)[0]
 
 # Creates and returns a new node instance.
 def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data"):
     return __node(url=url, rsync_addr=rsync_addr, rsync_dir=rsync_dir)
+
+def streamDownload(url):
+    with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            with open("temp.gz", 'w+b') as f:
+                for chunk in r.iter_content(chunk_size=8192): 
+                    f.write(chunk)
 
 # The main node instance.
 class __node:
@@ -33,7 +30,7 @@ class __node:
         self.rsync_dir = rsync_dir
 
         print("[crawling@home] connecting to crawling@home server...")
-        r = get(self.url + "api/new")
+        r = requests.get(self.url + "api/new")
 
         if r.status_code != 200:
             try:
@@ -48,7 +45,7 @@ class __node:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def jobCount(self):
-        r = get(self.url + "api/jobCount")
+        r = requests.get(self.url + "api/jobCount")
 
         if r.status_code != 200:
             try:
@@ -66,7 +63,7 @@ class __node:
     def newJob(self):
         print("[crawling@home] looking for new job...")
 
-        r = post(self.url + "api/newJob", json={"name": self.name})
+        r = requests.post(self.url + "api/newJob", json={"name": self.name})
 
         if r.status_code != 200:
             try:
@@ -86,10 +83,9 @@ class __node:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard")
 
-        r = get_stream(self.shard)
-        with open("temp.gz", 'w+b') as f:
-            for chunk in r.iter_content(chunk_size=8192): 
-                f.write(chunk)
+        t = Thread(target=streamDownload, args=(self.shard,))
+        
+        t.join()
         
         with gzip.open('temp.gz', 'rb') as f_in:
             with open('shard.wat', 'w+b') as f_out:
@@ -123,14 +119,14 @@ class __node:
 
     # Marks a job as completed/done. (do NOT use in scripts)
     def __markjobasdone(self):
-        post(self.url + "api/markAsDone", json={"name": self.name})
+        requests.post(self.url + "api/markAsDone", json={"name": self.name})
         print("[crawling@home] marked job as done")
 
     # Logs the string progress into the server.
     def log(self, progress : str, crashed=False):
         data = {"name": self.name, "progress": progress}
 
-        r = post(self.url + "api/updateProgress", json=data)
+        r = requests.post(self.url + "api/updateProgress", json=data)
         print("[crawling@home] logged new progress data")
 
         if r.status_code != 200 and not crashed:
@@ -142,5 +138,5 @@ class __node:
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self):
-        post(self.url + "api/bye", json={"name": self.name})
+        requests.post(self.url + "api/bye", json={"name": self.name})
         print("[crawling@home] ended run")
