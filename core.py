@@ -9,15 +9,15 @@ import os
 
 def get(*args, **kwargs):
     rs = (grequests.get(*args, **kwargs),)
-    rturn grequests.map(rs)[0]
+    return grequests.map(rs)[0]
 
 def post(*args, **kwargs):
     rs = (grequests.post(*args, **kwargs),)
-    rturn grequests.map(rs)[0]
+    return grequests.map(rs)[0]
 
 def get_stream(*args, **kwargs):
     rs = (grequests.get(*args, **kwargs),)
-    rturn grequests.map(rs, stream=True)[0]
+    return grequests.map(rs, stream=True)[0]
 
 # Creates and returns a new node instance.
 def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data"):
