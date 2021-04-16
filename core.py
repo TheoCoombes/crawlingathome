@@ -83,7 +83,9 @@ class __node:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard")
 
-        streamDownload(self.shard)
+        t = Thread(target=streamDownload, args=(self.shard,))
+        t.start()
+        t.join()
         
         with gzip.open('temp.gz', 'rb') as f_in:
             with open('shard.wat', 'w+b') as f_out:
