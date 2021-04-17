@@ -16,7 +16,7 @@ def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/pat
 
 # The main node instance.
 class __node:
-    def __init__(self, url, rsync_addr, rsync_dir):
+    def __init__(self, url, rsync_addr, rsync_dir, custom_rsync_cmd):
         if url[-1] != "/":
             url += "/"
         
