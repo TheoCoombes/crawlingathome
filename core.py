@@ -10,8 +10,8 @@ import os
 
 
 # Creates and returns a new node instance.
-def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data"):
-    return __node(url=url, rsync_addr=rsync_addr, rsync_dir=rsync_dir)
+def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data", custom_rsync_cmd=None):
+    return __node(url, rsync_addr, rsync_dir, custom_rsync_cmd)
 
 
 # The main node instance.
@@ -19,6 +19,12 @@ class __node:
     def __init__(self, url, rsync_addr, rsync_dir):
         if url[-1] != "/":
             url += "/"
+        
+        if custom_rsync_cmd is not None:
+            self.cmd = custom_rsync_cmd
+        else:
+            self.cmd = None
+        
         self.url = url
         self.rsync_addr = rsync_addr
         self.rsync_dir = rsync_dir
@@ -99,9 +105,12 @@ class __node:
         print("[crawling@home] uploading...")
         self.log("Uploading shard")
         
-        r = run([
-            "rsync", "-a", "-P", path, (self.rsync_addr + ":" + self.rsync_dir)
-        ], stderr=PIPE, universal_newlines=True)
+        if self.cmd is not None:
+            r = run([
+                "rsync", "-a", "-P", path, (self.rsync_addr + ":" + self.rsync_dir)
+            ], stderr=PIPE, universal_newlines=True)
+        else:
+            r = run(self.cmd, stderr=PIPE, universal_newlines=True)
 
         print("[crawling@home] finished uploading")
 
