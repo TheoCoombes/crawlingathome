@@ -107,7 +107,7 @@ class __node:
                 "rsync", "-a", "-P", path, (self.rsync_addr + ":" + self.rsync_dir)
             ], stderr=PIPE, universal_newlines=True)
         else:
-            r = run(self.cmd, stderr=PIPE, universal_newlines=True)
+            r = run(self.custom_rsync_cmd, stderr=PIPE, universal_newlines=True)
 
         print("[crawling@home] finished uploading")
 
