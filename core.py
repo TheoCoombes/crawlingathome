@@ -129,7 +129,7 @@ class __node:
         data = {"name": self.name, "progress": progress}
 
         r = requests.post(self.url + "api/updateProgress", json=data)
-        print("[crawling@home] logged new progress data")
+        print(f"[crawling@home] logged new progress data: {progress}")
 
         if r.status_code != 200 and not crashed:
             try:
