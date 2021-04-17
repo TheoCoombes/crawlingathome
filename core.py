@@ -20,10 +20,7 @@ class __node:
         if url[-1] != "/":
             url += "/"
         
-        if custom_rsync_cmd is not None:
-            self.cmd = custom_rsync_cmd
-        else:
-            self.cmd = None
+        self.custom_rsync_cmd = custom_rsync_cmd
         
         self.url = url
         self.rsync_addr = rsync_addr
@@ -105,7 +102,7 @@ class __node:
         print("[crawling@home] uploading...")
         self.log("Uploading shard")
         
-        if self.cmd is not None:
+        if self.custom_rsync_cmd is None:
             r = run([
                 "rsync", "-a", "-P", path, (self.rsync_addr + ":" + self.rsync_dir)
             ], stderr=PIPE, universal_newlines=True)
