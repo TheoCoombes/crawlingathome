@@ -1,4 +1,4 @@
-from subprocess import run, PIPE
+from subprocess import Popen, PIPE, TimeoutExpired
 from threading import Thread
 from time import sleep
 from json import loads
@@ -10,17 +10,17 @@ import os
 
 
 # Creates and returns a new node instance.
-def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data", custom_rsync_cmd=None):
-    return __node(url, rsync_addr, rsync_dir, custom_rsync_cmd)
+def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data", custom_upload_cmd=None):
+    return __node(url, rsync_addr, rsync_dir, custom_upload_cmd)
 
 
 # The main node instance.
 class __node:
-    def __init__(self, url, rsync_addr, rsync_dir, custom_rsync_cmd):
+    def __init__(self, url, rsync_addr, rsync_dir, custom_upload_cmd):
         if url[-1] != "/":
             url += "/"
         
-        self.custom_rsync_cmd = custom_rsync_cmd
+        self.custom_upload_cmd = custom_upload_cmd
         
         self.url = url
         self.rsync_addr = rsync_addr
@@ -100,14 +100,24 @@ class __node:
     # Uploads the files from path to the server, marking the job as complete.
     def uploadPath(self, path : str):
         print("[crawling@home] uploading...")
-        self.log("Uploading shard")
+        self.log("Uploading shard (0s)")
         
-        if self.custom_rsync_cmd is None:
-            r = run([
+        if self.custom_upload_cmd is None:
+            r = Popen([
                 "rsync", "-a", "-P", path, (self.rsync_addr + ":" + self.rsync_dir)
             ], stderr=PIPE, universal_newlines=True)
         else:
-            r = run(self.custom_rsync_cmd, stderr=PIPE, universal_newlines=True)
+            r = Popen(self.custom_upload_cmd, stderr=PIPE, universal_newlines=True)
+        
+        time = 0
+        while True:
+            try:
+                r.wait(timeout=15)
+                break
+            except TimeoutExpired:
+                time += 15
+                self.log(f"Uploading shard ({time}s)")
+                
 
         print("[crawling@home] finished uploading")
 
