@@ -1,8 +1,12 @@
+##############################
+#    Crawling@Home Client    #
+#   (c) Theo Coombes, 2021   #
+# TheoCoombes/crawlingathome #
+##############################
+
 from subprocess import Popen, PIPE, TimeoutExpired
-from threading import Thread
 from time import sleep
 from json import loads
-import numpy as np
 import requests
 import shutil
 import gzip
