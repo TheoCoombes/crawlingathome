@@ -78,6 +78,7 @@ class __node:
             self.shard = data["url"]
             self.start_id = np.int64(data["start_id"])
             self.end_id = np.int64(data["end_id"])
+            self.shard_piece = data["shard"]
             print("[crawling@home] recieved new job")
     
     # Downloads the current job's shard to the current directory (./shard.wat)
