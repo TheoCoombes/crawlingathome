@@ -131,12 +131,12 @@ class __node:
             self.log("Crashed", crashed=True)
             raise RuntimeError(f"[crawling@home] Something went wrong when uploading, returned code {r.returncode}:\n{r.stderr}")
         
-        self.__markjobasdone()
+        self._markjobasdone()
         print("[crawling@home] uploaded shard")
 
 
     # Marks a job as completed/done. (do NOT use in scripts)
-    def __markjobasdone(self):
+    def _markjobasdone(self):
         requests.post(self.url + "api/markAsDone", json={"name": self.name})
         print("[crawling@home] marked job as done")
 
