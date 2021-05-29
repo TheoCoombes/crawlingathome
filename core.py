@@ -5,6 +5,7 @@
 ##############################
 
 from subprocess import Popen, PIPE, TimeoutExpired
+from urllib.parse import quote_plus
 from time import sleep
 from json import loads
 import numpy as np
@@ -15,13 +16,13 @@ import os
 
 
 # Creates and returns a new node instance.
-def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data", custom_upload_cmd=None):
-    return __node(url, rsync_addr, rsync_dir, custom_upload_cmd)
+def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data", custom_upload_cmd=None, nickname=None):
+    return __node(url, rsync_addr, rsync_dir, custom_upload_cmd, nickname)
 
 
 # The main node instance.
 class __node:
-    def __init__(self, url, rsync_addr, rsync_dir, custom_upload_cmd):
+    def __init__(self, url, rsync_addr, rsync_dir, custom_upload_cmd, nickname):
         if url[-1] != "/":
             url += "/"
         
@@ -32,7 +33,10 @@ class __node:
         self.rsync_dir = rsync_dir
 
         print("[crawling@home] connecting to crawling@home server...")
-        r = requests.get(self.url + "api/new")
+        if nickname not None:
+            r = requests.get(self.url + "api/new")
+        else:
+            r = requests.get(self.url + f"api/new?nickname={quote_plus(nickname.lower())}")
 
         if r.status_code != 200:
             try:
