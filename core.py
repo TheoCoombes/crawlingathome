@@ -140,8 +140,8 @@ class __node:
 
 
     # Marks a job as completed/done. (do NOT use in scripts)
-    def _markjobasdone(self):
-        requests.post(self.url + "api/markAsDone", json={"name": self.name})
+    def _markjobasdone(self, total_scraped : int):
+        requests.post(self.url + "api/markAsDone", json={"name": self.name, "count": total_scraped})
         print("[crawling@home] marked job as done")
 
     # Logs the string progress into the server.
