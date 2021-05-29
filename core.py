@@ -5,7 +5,6 @@
 ##############################
 
 from subprocess import Popen, PIPE, TimeoutExpired
-from urllib.parse import quote_plus
 from time import sleep
 from json import loads
 import numpy as np
@@ -33,10 +32,11 @@ class __node:
         self.rsync_dir = rsync_dir
 
         print("[crawling@home] connecting to crawling@home server...")
-        if nickname is not None:
+        if nickname is None:
             r = requests.get(self.url + "api/new")
         else:
-            r = requests.get(self.url + f"api/new?nickname={quote_plus(nickname.lower())}")
+            payload = {"nickname": nickname}
+            r = requests.get(self.url + "api/new", params=payload)
 
         if r.status_code != 200:
             try:
