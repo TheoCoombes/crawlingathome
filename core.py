@@ -33,7 +33,7 @@ class __node:
         self.rsync_dir = rsync_dir
 
         print("[crawling@home] connecting to crawling@home server...")
-        if nickname not None:
+        if nickname is not None:
             r = requests.get(self.url + "api/new")
         else:
             r = requests.get(self.url + f"api/new?nickname={quote_plus(nickname.lower())}")
