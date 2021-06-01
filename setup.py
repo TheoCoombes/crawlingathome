@@ -3,6 +3,9 @@ import setuptools
 with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
+with open("requirements.txt", "r") as f:
+    requirements = f.read().split("\n")
+
 setuptools.setup(
     name="crawlingathome",
     version="0.0.1",
@@ -20,6 +23,7 @@ setuptools.setup(
         "License :: MIT License",
     ],
     package_dir={"": "crawlingathome"},
-    packages=setuptools.find_packages(where="crawlingathome"),
+    packages=setuptools.find_packages(where="./"),
+    install_requires=requirements,
     python_requires=">=3.7"
 )
