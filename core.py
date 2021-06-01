@@ -13,9 +13,12 @@ import shutil
 import gzip
 import os
 
+from .version import PrintVersion
+
 
 # Creates and returns a new node instance.
 def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data", custom_upload_cmd=None, nickname=None):
+    PrintVersion()
     return __node(url, rsync_addr, rsync_dir, custom_upload_cmd, nickname)
 
 
@@ -46,8 +49,12 @@ class __node:
             raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
 
         print("[crawling@home] connected to crawling@home server")
-        self.name = r.text
-        print(f"[crawling@home] node name: {self.name}")
+        data = r.json()
+        self.token = data["token"]
+        self.display_name = data["display_name"]
+        
+        print(f"[crawling@home] worker name: {self.display_name}")
+    
     
     # Finds the amount of available jobs from the server, returning an integer.
     def jobCount(self):
@@ -61,15 +68,17 @@ class __node:
             raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
 
         count = int(r.text)
+        
         print(f"[crawling@home] jobs remaining: {count}")
 
         return count
 
+    
     # Makes the node send a request to the server, asking for a new job.
     def newJob(self):
         print("[crawling@home] looking for new job...")
 
-        r = requests.post(self.url + "api/newJob", json={"name": self.name})
+        r = requests.post(self.url + "api/newJob", json={"token": self.token})
 
         if r.status_code != 200:
             try:
@@ -83,6 +92,7 @@ class __node:
             self.start_id = np.int64(data["start_id"])
             self.end_id = np.int64(data["end_id"])
             self.shard_piece = data["shard"]
+            
             print("[crawling@home] recieved new job")
     
     # Downloads the current job's shard to the current directory (./shard.wat)
@@ -108,7 +118,7 @@ class __node:
     
 
     # Uploads the files from path to the server, marking the job as complete.
-    def uploadPath(self, path : str):
+    def uploadPath(self, path : str): # !OBSOLETE!
         print("[crawling@home] uploading...")
         self.log("Uploading shard (0s)")
         
@@ -139,14 +149,14 @@ class __node:
         print("[crawling@home] uploaded shard")
 
 
-    # Marks a job as completed/done. (do NOT use in scripts)
+    # Marks a job as completed/done.
     def _markjobasdone(self, total_scraped : int):
-        requests.post(self.url + "api/markAsDone", json={"name": self.name, "count": total_scraped})
+        requests.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped})
         print("[crawling@home] marked job as done")
 
     # Logs the string progress into the server.
     def log(self, progress : str, crashed=False):
-        data = {"name": self.name, "progress": progress}
+        data = {"token": self.token, "progress": progress}
 
         r = requests.post(self.url + "api/updateProgress", json=data)
         print(f"[crawling@home] logged new progress data: {progress}")
@@ -160,5 +170,5 @@ class __node:
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self):
-        requests.post(self.url + "api/bye", json={"name": self.name})
+        requests.post(self.url + "api/bye", json={"token": self.token})
         print("[crawling@home] ended run")
