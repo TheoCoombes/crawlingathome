@@ -22,8 +22,8 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "License :: MIT License",
     ],
-    package_dir={"": "crawlingathome"},
-    packages=setuptools.find_packages(where="./"),
+    package_dir={"": "src"},
+    packages=setuptools.find_packages(where="src"),
     install_requires=requirements,
     python_requires=">=3.7"
 )
