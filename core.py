@@ -14,6 +14,7 @@ import gzip
 import os
 
 from .version import PrintVersion
+from .errors import *
 
 
 # Creates and returns a new node instance.
@@ -46,7 +47,7 @@ class __node:
                 self.log("Crashed", crashed=True)
             except:
                 pass
-            raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
+            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
 
         print("[crawling@home] connected to crawling@home server")
         data = r.json()
@@ -65,7 +66,7 @@ class __node:
                 self.log("Crashed", crashed=True)
             except:
                 pass
-            raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
+            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
 
         count = int(r.text)
         
@@ -85,7 +86,7 @@ class __node:
                 self.log("Crashed", crashed=True)
             except:
                 pass
-            raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
+            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
         else:
             data = loads(r.text)
             self.shard = data["url"]
@@ -143,7 +144,7 @@ class __node:
 
         if r.returncode != 0:
             self.log("Crashed", crashed=True)
-            raise RuntimeError(f"[crawling@home] Something went wrong when uploading, returned code {r.returncode}:\n{r.stderr}")
+            raise UploadError(f"[crawling@home] Something went wrong when uploading, returned code {r.returncode}:\n{r.stderr}")
         
         self._markjobasdone()
         print("[crawling@home] uploaded shard")
@@ -151,8 +152,16 @@ class __node:
 
     # Marks a job as completed/done.
     def _markjobasdone(self, total_scraped : int):
-        requests.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped})
+        r = requests.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped})
         print("[crawling@home] marked job as done")
+        
+        if r.status_code != 200:
+            try:
+                self.log("Crashed", crashed=True)
+            except:
+                pass
+            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        
 
     # Logs the string progress into the server.
     def log(self, progress : str, crashed=False):
@@ -166,7 +175,7 @@ class __node:
                 self.log("Crashed", crashed=True)
             except:
                 pass
-            raise RuntimeError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}")
+            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self):
