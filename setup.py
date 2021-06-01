@@ -20,6 +20,6 @@ setuptools.setup(
         "License :: MIT License",
     ],
     package_dir={"": "crawlingathome"},
-    packages=setuptools.find_packages(where="src"),
+    packages=["crawlingathome"],
     python_requires=">=3.7"
 )
