@@ -1,6 +1,7 @@
 # Crawling@Home Client
 A distributed compute module for DALLE-pytorch dataset creation.
 * Server Repo: [TheoCoombes/crawlingathome-server](https://github.com/TheoCoombes/crawlingathome-server)
+* Live Dashboard: http://crawlingathome.duckdns.org/
 
 ## Prerequisites
 * Python >= 3.7
