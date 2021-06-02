@@ -1,5 +1,5 @@
-VERSION = "1.1.0-pre"
+VERSION = "1.1.0"
 GITHUB = "https://github.com/TheoCoombes/crawlingathome"
 
 def PrintVersion():
-    print(f"Crawling@Home client v{VERSION}\nFor issues and source code, see {GITHUB}\n\n")
+    print(f"crawling@home client v{VERSION}\nFor issues and source code, see {GITHUB}\n\n")
