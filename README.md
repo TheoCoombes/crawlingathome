@@ -5,7 +5,6 @@ A distributed compute module for DALLE-pytorch dataset creation.
 
 ## Prerequisites
 * Python >= 3.7
-* rsync
 
 ## Installation
 As this module will only be used for creating the dataset (short-term), it has not been added to `pip`. However, installing from source is fairly simple:
