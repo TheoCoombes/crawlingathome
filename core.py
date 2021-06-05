@@ -56,7 +56,7 @@ class __node:
         self.display_name = data["display_name"]
         
         print(f"[crawling@home] worker name: {self.display_name}")
-        print(f"\n\nYou can view this worker's progress at {self.url + '/worker/' + self.display_name}")
+        print(f"\n\nYou can view this worker's progress at {self.url + 'worker/' + self.display_name}\n")
     
     
     # Finds the amount of available jobs from the server, returning an integer.
