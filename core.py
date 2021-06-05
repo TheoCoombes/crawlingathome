@@ -121,7 +121,7 @@ class __node:
     
 
     # Uploads the files from path to the server, marking the job as complete. [OBSOLETE, use _markjobasdone(...)]
-    def uploadPath(self, path : str):
+    def uploadPath(self, path : str, total_scraped : int):
         print("[crawling@home] uploading...")
         self.log("Uploading shard (0s)")
         
@@ -148,7 +148,7 @@ class __node:
             self.log("Crashed", crashed=True)
             raise UploadError(f"[crawling@home] Something went wrong when uploading, returned code {r.returncode}:\n{r.stderr}")
         
-        self._markjobasdone()
+        self._markjobasdone(total_scraped)
         print("[crawling@home] uploaded shard")
 
 
