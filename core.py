@@ -55,6 +55,7 @@ class __node:
         self.display_name = data["display_name"]
         
         print(f"[crawling@home] worker name: {self.display_name}")
+        print(f"\n\nYou can view this worker's progress at {self.url + '/worker/' + self.display_name}")
     
     
     # Finds the amount of available jobs from the server, returning an integer.
@@ -118,8 +119,8 @@ class __node:
         print("[crawling@home] finished downloading shard")
     
 
-    # Uploads the files from path to the server, marking the job as complete.
-    def uploadPath(self, path : str): # !OBSOLETE!
+    # Uploads the files from path to the server, marking the job as complete. [OBSOLETE, use _markjobasdone(...)]
+    def uploadPath(self, path : str):
         print("[crawling@home] uploading...")
         self.log("Uploading shard (0s)")
         
