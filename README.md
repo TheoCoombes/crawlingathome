@@ -1,5 +1,5 @@
 # Crawling@Home Client
-A distributed compute module for DALLE-pytorch dataset creation.
+A client library for Crawling@Home's effort to filter CommonCrawl with CLIP, building a large scale image-text dataset.
 * Server Repo: [TheoCoombes/crawlingathome-server](https://github.com/TheoCoombes/crawlingathome-server)
 * Live Dashboard: http://crawlingathome.duckdns.org/
 
