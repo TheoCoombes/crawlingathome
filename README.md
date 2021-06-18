@@ -1,5 +1,5 @@
 # Crawling@Home Client
-A distributed compute module for DALLE-pytorch dataset creation.
+A client library for Crawling@Home's effort to filter CommonCrawl with CLIP, building a large scale image-text dataset.
 * Server Repo: [TheoCoombes/crawlingathome-server](https://github.com/TheoCoombes/crawlingathome-server)
 * Live Dashboard: http://crawlingathome.duckdns.org/
 
@@ -45,45 +45,45 @@ client.bye()
 
 ## Methods
 
-### [crawlingathome.init(url="http://localhost", nickname=None) -> crawlingathome.core.__node](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L21)
+### [crawlingathome.init(url="http://localhost", nickname=None) -> crawlingathome.core.Client](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L21)
 Creates and returns a new node instance.
 * `url`: the Crawling@Home server URL
 * `nickname`: the user's nickname (for the leaderboard)
 
-### [crawlingathome.core.__node.jobCount() -> int](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L63)
+### [crawlingathome.core.Client.jobCount() -> int](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L63)
 Finds the amount of available jobs from the server, returning an integer.
 
-### [crawlingathome.core.__node.newJob()](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L81)
+### [crawlingathome.core.Client.newJob()](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L81)
 Makes the node send a request to the server, asking for a new job.
 
-### [crawlingathome.core.__node.downloadShard()](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L102)
+### [crawlingathome.core.Client.downloadShard()](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L102)
 Downloads the current job's shard to the current directory (`./shard.wat`)
 
-### [crawlingathome.core.__node.uploadPath(path : str)](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L124)
+### [crawlingathome.core.Client.uploadPath(path : str)](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L124)
 Uploads the files from `path` to the server, marking the job as complete. **[OBSOLETE, use _markjobasdone(...)]**
 * `path` (required): the path to the data
 
-### [crawlingathome.core.__node._markjobasdone(total_scraped : int)](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L156)
+### [crawlingathome.core.Client._markjobasdone(total_scraped : int)](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L156)
 Marks the current job as done to the server, along with submitting the total amount of alt-text pairs scraped.
 * `total_scraped` (required): the amount of alt-text pairs scraped for the current job
 
-### [crawlingathome.core.__node.log(progress : str)](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L169)
+### [crawlingathome.core.Client.log(progress : str)](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L169)
 Logs the string `progress` into the server.
 * `progress` (required): The string detailing the progress, e.g. `"12 / 100 (12%)"`
 
-### [crawlingathome.core.__node.bye()](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L183)
+### [crawlingathome.core.Client.bye()](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L183)
 Removes the node instance from the server, ending all current jobs.
 
 ## Variables
 
-### [crawlingathome.core.__node.shard](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L94)
+### [crawlingathome.core.Client.shard](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L94)
 The URL to the current shard.
 
-### [crawlingathome.core.__node.start_id](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L95)
+### [crawlingathome.core.Client.start_id](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L95)
 The starting ID. Type: `np.int64`.
 
-### [crawlingathome.core.__node.end_id](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L96)
+### [crawlingathome.core.Client.end_id](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L96)
 The ending ID - usually 1 million more than starting ID. Type: `np.int64`.
 
-### [crawlingathome.core.__node.shard_piece](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L97)
+### [crawlingathome.core.Client.shard_piece](https://github.com/TheoCoombes/crawlingathome/blob/main/core.py#L97)
 The 'shard' of the chunk, either 0 (first 50%) or 1 (last 50%).

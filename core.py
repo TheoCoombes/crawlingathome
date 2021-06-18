@@ -13,19 +13,20 @@ import shutil
 import gzip
 import os
 
-from .version import PrintVersion
 from .errors import *
 
 
 # Creates and returns a new node instance.
 def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data", custom_upload_cmd=None, nickname=None):
-    PrintVersion()
-    return __node(url, rsync_addr, rsync_dir, custom_upload_cmd, nickname)
+    return Client(url, rsync_addr, rsync_dir, custom_upload_cmd, nickname)
 
 
-# The main node instance.
-class __node:
-    def __init__(self, url, rsync_addr, rsync_dir, custom_upload_cmd, nickname):
+# The main client instance.
+class Client:
+    def __init__(self, url, rsync_addr, rsync_dir, custom_upload_cmd, nickname, _recycled=False):
+        if _recycled:
+            return
+        
         if url[-1] != "/":
             url += "/"
         
