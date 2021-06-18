@@ -14,7 +14,6 @@ import gzip
 import os
 
 from .errors import *
-from .recycler import dump as _dump
 
 
 # Creates and returns a new node instance.
@@ -185,6 +184,7 @@ class Client:
     
     # Client wrapper for `recycler.dump`.
     def dump(self):
+        from .recycler import dump as _dump
         _dump(self)
     
     
