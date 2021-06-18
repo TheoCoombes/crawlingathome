@@ -60,20 +60,6 @@ class Client:
         print(f"\n\nYou can view this worker's progress at {self.url + 'worker/' + self.display_name}\n")
     
     
-    # Recycle an existing client, using its existing variables.
-    @classmethod
-    def RecycleClient(cls, url, token, shard, start_id, end_id, shard_piece):
-        c = cls(None, None, None, None, None, _recycled=True)
-        c.s = session()
-        c.url = url
-        c.token = token
-        c.shard = shard
-        c.start_id = start_id if isinstance(start_id, np.int64) else np.int64(start_id)
-        c.end_id = end_id if isinstance(end_id, np.int64) else np.int64(end_id)
-        c.shard_piece = shard_piece
-        return c
-    
-    
     # Finds the amount of available jobs from the server, returning an integer.
     def jobCount(self):
         r = self.s.get(self.url + "api/jobCount")
