@@ -1,11 +1,10 @@
 import numpy as np
 
-from .core import Client
 from .errors import *
 
-
 # Dump a client's attributes into a dictionary so that it can be used remotely.
-def dump(c: Client):
+def dump():
+    from .core import Client
     try:
         return {
             "url": c.url,
@@ -21,6 +20,7 @@ def dump(c: Client):
 # Load an existing client using its attributes. It's best to load using an existing dumpClient(): `loadClient(**dump)`
 def load(url=None, token=None, shard=None,
               start_id=None, end_id=None, shard_piece=None):
+    from .core import Client
     c = Client(*[None] * 5, _recycled=True)
     c.url = url
     c.token = token
