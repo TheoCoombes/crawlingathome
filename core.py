@@ -14,6 +14,7 @@ import gzip
 import os
 
 from .errors import *
+from .recycler import dump as _dump
 
 
 # Creates and returns a new node instance.
@@ -99,6 +100,7 @@ class Client:
             
             print("[crawling@home] recieved new job")
     
+    
     # Downloads the current job's shard to the current directory (./shard.wat)
     def downloadShard(self):
         print("[crawling@home] downloading shard...")
@@ -179,6 +181,12 @@ class Client:
             except:
                 pass
             raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+    
+    
+    # Client wrapper for `recycler.dump`.
+    def dump(self):
+        _dump(self)
+    
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self):
