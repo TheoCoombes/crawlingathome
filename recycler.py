@@ -5,7 +5,7 @@ from .errors import *
 
 
 # Dump a client's attributes into a dictionary so that it can be used remotely.
-def dumpClient(c: Client):
+def dump(c: Client):
     try:
         return {
             "url": c.url,
@@ -19,7 +19,7 @@ def dumpClient(c: Client):
         raise DumpError(f"[crawling@home] unable to dump client: {e}")
 
 # Load an existing client using its attributes. It's best to load using an existing dumpClient(): `loadClient(**dump)`
-def loadClient(url=None, token=None, shard=None,
+def load(url=None, token=None, shard=None,
               start_id=None, end_id=None, shard_piece=None):
     c = Client(*[None] * 5, _recycled=True)
     c.url = url
