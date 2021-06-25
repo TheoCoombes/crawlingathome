@@ -167,7 +167,7 @@ class Client:
                 pass
             raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
         else:
-            return bool(r.text)
+            return ("True" in r.text)
     
     
     # Removes the node instance from the server, ending all current jobs.
