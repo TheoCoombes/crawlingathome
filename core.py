@@ -4,10 +4,8 @@
 # TheoCoombes/crawlingathome #
 ##############################
 
-from subprocess import Popen, PIPE, TimeoutExpired
 from requests import session
 from time import sleep
-from json import loads
 import numpy as np
 import shutil
 import gzip
@@ -17,25 +15,21 @@ from .errors import *
 
 
 # Creates and returns a new node instance.
-def init(url="http://localhost:8080", rsync_addr="user@0.0.0.0", rsync_dir="/path/to/data", custom_upload_cmd=None, nickname=None):
-    return Client(url, rsync_addr, rsync_dir, custom_upload_cmd, nickname)
+def init(url="http://crawlingathome.duckdns.org/", nickname=None):
+    return Client(url, nickname)
 
 
 # The main client instance.
 class Client:
-    def __init__(self, url, rsync_addr, rsync_dir, custom_upload_cmd, nickname, _recycled=False):
+    def __init__(self, url, nickname, _recycled=False):
         if _recycled:
             return
         
         if url[-1] != "/":
             url += "/"
         
-        self.custom_upload_cmd = custom_upload_cmd
-        
         self.s = session()
         self.url = url
-        self.rsync_addr = rsync_addr
-        self.rsync_dir = rsync_dir
 
         print("[crawling@home] connecting to crawling@home server...")
         if nickname is None:
@@ -91,7 +85,7 @@ class Client:
                 pass
             raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
         else:
-            data = loads(r.text)
+            data = r.json()
             self.shard = data["url"]
             self.start_id = np.int64(data["start_id"])
             self.end_id = np.int64(data["end_id"])
@@ -103,7 +97,7 @@ class Client:
     # Downloads the current job's shard to the current directory (./shard.wat)
     def downloadShard(self):
         print("[crawling@home] downloading shard...")
-        self.log("Downloading shard")
+        self.log("Downloading shard", noprint=True)
 
         with self.s.get(self.shard, stream=True) as r:
             r.raise_for_status()
@@ -118,44 +112,12 @@ class Client:
         sleep(1) # Causes errors otherwise?
         os.remove("temp.gz")
 
-        self.log("Downloaded shard")
+        self.log("Downloaded shard", noprint=True)
         print("[crawling@home] finished downloading shard")
-    
-
-    # Uploads the files from path to the server, marking the job as complete. [OBSOLETE, use _markjobasdone(...)]
-    def uploadPath(self, path : str, total_scraped : int):
-        print("[crawling@home] uploading...")
-        self.log("Uploading shard (0s)")
-        
-        if self.custom_upload_cmd is None:
-            r = Popen([
-                "rsync", "-a", "-P", path, (self.rsync_addr + ":" + self.rsync_dir)
-            ], stderr=PIPE, universal_newlines=True)
-        else:
-            r = Popen(self.custom_upload_cmd, stderr=PIPE, universal_newlines=True)
-        
-        time = 0
-        while True:
-            try:
-                r.wait(timeout=15)
-                break
-            except TimeoutExpired:
-                time += 15
-                self.log(f"Uploading shard ({time}s)")
-                
-
-        print("[crawling@home] finished uploading")
-
-        if r.returncode != 0:
-            self.log("Crashed", crashed=True)
-            raise UploadError(f"[crawling@home] Something went wrong when uploading, returned code {r.returncode}:\n{r.stderr}")
-        
-        self._markjobasdone(total_scraped)
-        print("[crawling@home] uploaded shard")
 
 
     # Marks a job as completed/done.
-    def _markjobasdone(self, total_scraped : int):
+    def completeJob(self, total_scraped : int):
         r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped})
         print("[crawling@home] marked job as done")
         
@@ -165,14 +127,20 @@ class Client:
             except:
                 pass
             raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+
+    
+    # Wrapper for `completeJob` (for older workers)
+    def _markjobasdone(self, total_scraped : int):
+        self.completeJob(total_scraped)
         
 
     # Logs the string progress into the server.
-    def log(self, progress : str, crashed=False):
+    def log(self, progress : str, crashed=False, noprint=False):
         data = {"token": self.token, "progress": progress}
 
         r = self.s.post(self.url + "api/updateProgress", json=data)
-        print(f"[crawling@home] logged new progress data: {progress}")
+        if not crashed and not noprint:
+            print(f"[crawling@home] logged new progress data: {progress}")
 
         if r.status_code != 200 and not crashed:
             try:
@@ -185,7 +153,21 @@ class Client:
     # Client wrapper for `recycler.dump`.
     def dump(self):
         from .recycler import dump as _dump
-        _dump(self)
+        return _dump(self)
+    
+    
+    # Returns True if the worker is still alive, otherwise returns False.
+    def isAlive(self):
+        r = self.s.post(self.url + "api/validateWorker", json={"token": self.token})
+
+        if r.status_code != 200:
+            try:
+                self.log("Crashed", crashed=True)
+            except:
+                pass
+            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        else:
+            return ("True" in r.text)
     
     
     # Removes the node instance from the server, ending all current jobs.

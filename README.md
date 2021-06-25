@@ -23,8 +23,7 @@ import crawlingathome as cah
 
 client = cah.init(
     url="https://example.com",
-    rsync_addr="host@127.0.0.1",
-    rsync_dir="/dataset/chunks"
+    nickname="John Doe"
 )
 
 while client.jobCount() > 0:
@@ -34,11 +33,11 @@ while client.jobCount() > 0:
     # Saved shard at ./shard.wat
     
     while processing_shard:
-        # ... do stuff
+        # ... process data
 
         client.log("Completed x / y images") # Updates the client's progress to the server
-    
-    client.uploadData("path/to/images") # Uploads the data in the path and marks the job as complete
+
+    client.completeJob()
 
 client.bye()
 ```
