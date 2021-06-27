@@ -62,7 +62,7 @@ class HybridClient:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def jobCount(self):
-        r = self.s.get(self.url + "api/jobCount")
+        r = self.s.get(self.url + "api/jobCount", params={"type": "HYBRID"})
 
         if r.status_code != 200:
             try:
@@ -82,7 +82,7 @@ class HybridClient:
     def newJob(self):
         print("[crawling@home] looking for new job...")
 
-        r = self.s.post(self.url + "api/newJob", json={"token": self.token})
+        r = self.s.post(self.url + "api/newJob", json={"token": self.token, "type": "HYBRID"})
 
         if r.status_code != 200:
             try:
@@ -124,7 +124,7 @@ class HybridClient:
 
     # Marks a job as completed/done.
     def completeJob(self, total_scraped : int):
-        r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped})
+        r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "HYBRID"})
         print("[crawling@home] marked job as done")
         
         if r.status_code != 200:
@@ -143,7 +143,7 @@ class HybridClient:
 
     # Logs the string progress into the server.
     def log(self, progress : str, crashed=False, noprint=False):
-        data = {"token": self.token, "progress": progress}
+        data = {"token": self.token, "progress": progress, "type": "HYBRID"}
 
         r = self.s.post(self.url + "api/updateProgress", json=data)
         if not crashed and not noprint:
@@ -165,7 +165,7 @@ class HybridClient:
     
     # Returns True if the worker is still alive, otherwise returns False.
     def isAlive(self):
-        r = self.s.post(self.url + "api/validateWorker", json={"token": self.token, type="HYBRID"})
+        r = self.s.post(self.url + "api/validateWorker", json={"token": self.token, "type": "HYBRID"})
 
         if r.status_code != 200:
             try:
@@ -179,9 +179,10 @@ class HybridClient:
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self):
-        self.s.post(self.url + "api/bye", json={"token": self.token})
+        self.s.post(self.url + "api/bye", json={"token": self.token, "type": "HYBRID"})
         print("[crawling@home] closed worker")
 
+        
         
 # The CPU client instance.
 # Programatically similar to `HybridClient`, with different completion functions.
@@ -212,7 +213,7 @@ class CPUClient:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def jobCount(self):
-        r = self.s.get(self.url + "api/jobCount")
+        r = self.s.get(self.url + "api/jobCount", params={"type": "CPU"})
 
         if r.status_code != 200:
             try:
@@ -232,7 +233,7 @@ class CPUClient:
     def newJob(self):
         print("[crawling@home] looking for new job...")
 
-        r = self.s.post(self.url + "api/newJob", json={"token": self.token})
+        r = self.s.post(self.url + "api/newJob", json={"token": self.token, "type": "CPU"})
 
         if r.status_code != 200:
             try:
@@ -274,7 +275,7 @@ class CPUClient:
     
     # Uploads the image download URL for the GPU workers to use, marking the CPU job complete.
     def completeJob(self, image_download_url : str):
-        r = self.s.post(self.url + "api/markAsDone-cpu", json={"token": self.token, "url": image_download_url})
+        r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "url": image_download_url, "type": "CPU"})
         print("[crawling@home] marked job as done")
         
         if r.status_code != 200:
@@ -287,7 +288,7 @@ class CPUClient:
     
     # Logs the string progress into the server.
     def log(self, progress : str, crashed=False, noprint=False):
-        data = {"token": self.token, "progress": progress}
+        data = {"token": self.token, "progress": progress, "type": "CPU"}
 
         r = self.s.post(self.url + "api/updateProgress", json=data)
         if not crashed and not noprint:
@@ -317,7 +318,7 @@ class CPUClient:
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self):
-        self.s.post(self.url + "api/bye", json={"token": self.token})
+        self.s.post(self.url + "api/bye", json={"token": self.token, "type": "CPU"})
         print("[crawling@home] closed worker")
 
 
@@ -353,7 +354,7 @@ class GPUClient:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def jobCount(self):
-        r = self.s.get(self.url + "api/jobCount-gpu")
+        r = self.s.get(self.url + "api/jobCount", params={"type": "GPU"})
 
         if r.status_code != 200:
             try:
@@ -373,7 +374,7 @@ class GPUClient:
     def newJob(self):
         print("[crawling@home] looking for new job...")
 
-        r = self.s.post(self.url + "api/newJob-gpu", json={"token": self.token})
+        r = self.s.post(self.url + "api/newJob", json={"token": self.token, "type": "GPU"})
 
         if r.status_code != 200:
             try:
@@ -419,7 +420,7 @@ class GPUClient:
     
     # Uploads the image download URL for the GPU workers to use, marking the CPU job complete.
     def completeJob(self, total_scraped : int):
-        r = self.s.post(self.url + "api/markAsDone-gpu", json={"token": self.token, "count": total_scraped})
+        r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "GPU"})
         print("[crawling@home] marked job as done")
         
         if r.status_code != 200:
@@ -432,7 +433,7 @@ class GPUClient:
     
     # Logs the string progress into the server.
     def log(self, progress : str, crashed=False, noprint=False):
-        data = {"token": self.token, "progress": progress}
+        data = {"token": self.token, "progress": progress, "type": "GPU"}
 
         r = self.s.post(self.url + "api/updateProgress", json=data)
         if not crashed and not noprint:
@@ -462,6 +463,6 @@ class GPUClient:
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self):
-        self.s.post(self.url + "api/bye", json={"token": self.token})
+        self.s.post(self.url + "api/bye", json={"token": self.token, "type": "GPU"})
         print("[crawling@home] closed worker")
         
