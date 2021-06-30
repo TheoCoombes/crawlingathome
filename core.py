@@ -277,7 +277,13 @@ class CPUClient:
     
     # Uploads the image download URL for the GPU workers to use, marking the CPU job complete.
     def completeJob(self, image_download_url : str):
-        r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "url": image_download_url, "type": "CPU"})
+        body = {
+            "url": image_download_url,
+            "start_id": str(self.start_id),
+            "end_id": str(self.end_id),
+            "shard": self.shard_piece
+        }
+        r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, **body, "type": "CPU"})
         print("[crawling@home] marked job as done")
         
         if r.status_code != 200:
