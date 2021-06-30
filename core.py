@@ -17,15 +17,17 @@ from .errors import *
 
 # Creates and returns a new node instance.
 def init(url="http://crawlingathome.duckdns.org/", nickname=None, type="Hybrid"):
-    t = type.lower()[0]
-    if t == "h":
+    if isinstance(type, str):
+        type = type.lower()[0]
+        
+    if type == "h" or type == HybridClient:
         return HybridClient(url, nickname)
-    elif t == "c":
+    elif type == "c" or type == CPUClient:
         return CPUClient(url, nickname)
-    elif t == "g":
+    elif type == "g" or type == GPUClient:
         return GPUClient(url, nickname)
     else:
-        raise ValueError("[crawling@home] invalid worker `type`")
+        raise ValueError(f"[crawling@home] invalid worker `{type}`")
 
 
 # The main 'hybrid' client instance.
@@ -390,6 +392,16 @@ class GPUClient:
             self.shard_piece = data["shard"]
             
             print("[crawling@home] recieved new job")
+            
+    
+    # Flags a GPU job's URL as invalid to the server.
+    def invalidURL(self):
+        r = self.s.post(self.url + "api/gpuInvalidDownload", json={"token": self.token, "type": "GPU"})
+        
+        if r.status_code != 200:
+            print("[crawling@home] something went wrong when flagging a URL as invalid - not raising error.")
+        else:
+            print("[crawling@home] successfully flagged url as invalid")
     
     
     # Downloads the CPU worker's processed images to a (new) ./images/ directory
