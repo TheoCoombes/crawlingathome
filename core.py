@@ -410,8 +410,8 @@ class GPUClient:
             print("[crawling@home] successfully flagged url as invalid")
     
     
-    # Downloads the CPU worker's processed images to a (new) ./images/ directory
-    def downloadShard(self):
+    # Downloads the CPU worker's processed images to the ./images/ (`path`) directory
+    def downloadShard(self, path="./images"):
         print("[crawling@home] downloading uploaded data...")
         self.log("Fetching images", noprint=True)
 
@@ -422,12 +422,12 @@ class GPUClient:
                     f.write(chunk)
         
         try:
-            os.mkdir("images")
+            os.mkdir(path)
         except:
             pass
         
         with tarfile.open('temp.tar', 'r') as tar:
-            tar.extractall("./images")
+            tar.extractall(path)
         
         sleep(1) # Causes errors otherwise?
         os.remove("temp.tar")
