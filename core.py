@@ -57,7 +57,7 @@ class HybridClient:
         self.display_name = data["display_name"]
         
         print(f"[crawling@home] worker name: {self.display_name}")
-        print(f"\n\nYou can view this worker's progress at {self.url + 'worker/' + self.display_name}\n")
+        print(f"\n\nYou can view this worker's progress at {self.url + 'worker/hybrid/' + self.display_name}\n")
     
     
     # Finds the amount of available jobs from the server, returning an integer.
@@ -208,7 +208,7 @@ class CPUClient:
         self.display_name = data["display_name"]
         
         print(f"[crawling@home] worker name: {self.display_name}")
-        print(f"\n\nYou can view this worker's progress at {self.url + 'worker/' + self.display_name}\n")
+        print(f"\n\nYou can view this worker's progress at {self.url + 'worker/cpu/' + self.display_name}\n")
     
     
     # Finds the amount of available jobs from the server, returning an integer.
@@ -349,7 +349,7 @@ class GPUClient:
         self.display_name = data["display_name"]
         
         print(f"[crawling@home] worker name: {self.display_name}")
-        print(f"\n\nYou can view this worker's progress at {self.url + 'worker/' + self.display_name}\n")
+        print(f"\n\nYou can view this worker's progress at {self.url + 'worker/gpu/' + self.display_name}\n")
     
     
     # Finds the amount of available jobs from the server, returning an integer.
