@@ -16,7 +16,7 @@ from .errors import *
 
 
 # Creates and returns a new node instance.
-def init(url="http://crawlingathome.duckdns.org/", nickname=None, type=HybridClient):
+def init(url="http://crawlingathome.duckdns.org/", nickname=None, type="Hybrid"):
     if isinstance(type, str):
         type = type.lower()[0]
         
