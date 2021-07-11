@@ -190,6 +190,9 @@ class HybridClient:
 # Programatically similar to `HybridClient`, with different completion functions.
 class CPUClient:
     def __init__(self, url, nickname):
+        if url[-1] != "/":
+            url += "/"
+        
         self.s = session()
         self.url = url
 
