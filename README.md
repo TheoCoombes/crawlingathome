@@ -32,7 +32,6 @@ Dumps a client into a dictionary, so that it can be loaded externally. (see belo
 
 ## crawlingathome.load(**kwargs) -> Client
 Loads an existing client using dumped data passed as kwargs, returning a client instance. (see above)
-* Only works on `HybridClient` instances currently, although all types will be supported soon.
 
 # HybridClient Reference
 ```py
@@ -80,6 +79,9 @@ Logs the string `progress` into the server.
 
 ## HybridClient.isAlive() -> bool
 Returns `True` if this client is still connected to the server, otherwise returns `False`.
+
+## HybridClient.dump()
+Client-side wrapper for `crawlingathome.dump(client)`.
 
 ## HybridClient.bye()
 Removes the node instance from the server, ending all current jobs.
