@@ -1,5 +1,5 @@
-from .version import PrintVersion
-PrintVersion()
+from .version import PrintVersion as _printversion
+_printversion()
 
 from .core import init
 from .recycler import dump, load
