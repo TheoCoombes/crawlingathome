@@ -91,6 +91,10 @@ class HybridClient:
                 self.log("Crashed", crashed=True)
             except:
                 pass
+            
+            if r.status_code == 503:
+                raise ZeroJobError(f"{r.text}\n")
+            
             raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
         else:
             data = r.json()
@@ -245,6 +249,10 @@ class CPUClient:
                 self.log("Crashed", crashed=True)
             except:
                 pass
+            
+            if r.status_code == 503:
+                raise ZeroJobError(f"{r.text}\n")
+            
             raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
         else:
             data = r.json()
@@ -392,6 +400,10 @@ class GPUClient:
                 self.log("Crashed", crashed=True)
             except:
                 pass
+            
+            if r.status_code == 503:
+                raise ZeroJobError(f"{r.text}\n")
+                
             raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
         else:
             data = r.json()
