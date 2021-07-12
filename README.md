@@ -111,13 +111,13 @@ Marks the current job as done to the server and sends the download URL for GPU w
 # GPUClient Reference
 Similarly to the CPU Client, the GPU client is programatically similar to `HybridClient`, instead with a differing `downloadShard()` function, `shard` variable and new `invalidURL` method:
 
-## HybridClient.downloadShard(path="./images")
+## GPUClient.downloadShard(path="./images")
 Extracts the .tar file recieved from CPU workers into the path `path`, creating the directory if neccesary.
 
-## HybridClient.invalidURL()
+## GPUClient.invalidURL()
 Flags a GPU job's URL as invalid to the server, moving the job back into open jobs.
 
-## HybridClient.shard
+## GPUClient.shard
 Instead of being a CommonCrawl URL before, this is the string the CPU client uploaded in `CPUClient.completeJob(...)`.
 
 ## GPUClient Note:
