@@ -41,6 +41,7 @@ class HybridClient:
         
         self.s = session()
         self.url = url
+        self.type = "HYBRID"
 
         print("[crawling@home] connecting to crawling@home server...")
         payload = {"nickname": nickname, "type": "HYBRID"}
@@ -193,12 +194,16 @@ class HybridClient:
 # The CPU client instance.
 # Programatically similar to `HybridClient`, with different completion functions.
 class CPUClient:
-    def __init__(self, url, nickname):
+    def __init__(self, url, nickname, _recycled=False):
+        if _recycled:
+            return
+        
         if url[-1] != "/":
             url += "/"
         
         self.s = session()
         self.url = url
+        self.type = "CPU"
 
         print("[crawling@home] connecting to crawling@home server...")
         payload = {"nickname": nickname, "type": "CPU"}
@@ -321,6 +326,12 @@ class CPUClient:
             raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
     
     
+    # Client wrapper for `recycler.dump`.
+    def dump(self):
+        from .recycler import dump as _dump
+        return _dump(self)
+    
+    
     # Returns True if the worker is still alive, otherwise returns False.
     def isAlive(self):
         r = self.s.post(self.url + "api/validateWorker", json={"token": self.token, "type": "CPU"})
@@ -344,12 +355,16 @@ class CPUClient:
 
 # The GPU client instance.
 class GPUClient:
-    def __init__(self, url, nickname):
+    def __init__(self, url, nickname, _recycled=False):
+        if _recycled:
+            return
+        
         if url[-1] != "/":
             url += "/"
         
         self.s = session()
         self.url = url
+        self.type = "GPU"
 
         print("[crawling@home] connecting to crawling@home server...")
         payload = {"nickname": nickname, "type": "GPU"}
@@ -478,6 +493,12 @@ class GPUClient:
             except:
                 pass
             raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+    
+    
+    # Client wrapper for `recycler.dump`.
+    def dump(self):
+        from .recycler import dump as _dump
+        return _dump(self)
     
     
     # Returns True if the worker is still alive, otherwise returns False.
