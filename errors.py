@@ -4,5 +4,8 @@ class ServerError(Exception):
 class UploadError(Exception):
     pass
 
+class ZeroJobError(Exception):
+    pass
+
 class DumpError(Exception):
     pass
