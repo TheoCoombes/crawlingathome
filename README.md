@@ -114,3 +114,7 @@ Extracts the .tar file recieved from CPU workers into the path `path`, creating 
 
 ## HybridClient.shard
 Instead of being a CommonCrawl URL before, this is the string the CPU client uploaded in `CPUClient.completeJob(...)`.
+
+## GPUClient Note:
+GPUClient jobs are dynamically created, meaning it needs CPU clients to generate jobs for it. Because of this, there may be periods of time when your worker(s) don't have any jobs to fufil. You can prepare for this by making use of the `GPUClient.jobCount()` function as well as using a try/except on the `newJob()` call.
+* `GPUClient.newJob()` raises a `crawlingathome.errors.ZeroJobError` when there are no jobs to fufil.
