@@ -4,9 +4,10 @@ from .core import HybridClient
 from .errors import *
 
 # Dump a client's attributes into a dictionary so that it can be used remotely.
-def dump(c : HybridClient):
+def dump(c):
     try:
         return {
+            "type": c.type,
             "url": c.url,
             "token": c.token,
             "shard": c.shard if hasattr(c, 'shard') else None,
@@ -19,8 +20,18 @@ def dump(c : HybridClient):
 
 # Load an existing client using its attributes. It's best to load using an existing dumpClient(): `loadClient(**dump)`
 def load(url=None, token=None, shard=None,
-              start_id=None, end_id=None, shard_piece=None):
-    c = HybridClient(*[None] * 5, _recycled=True)
+              start_id=None, end_id=None, 
+              _type=None, shard_piece=None):
+    
+    if _type == "HYBRID":
+        c = HybridClient(*[None] * 5, _recycled=True)
+    elif _type == "CPU":
+        c = CPUClient(*[None] * 5, _recycled=True)
+    elif _type == "GPU":
+        c = GPUClient(*[None] * 5, _recycled=True)
+    else:
+        raise ValueError(f"Invalid worker type: {_type}")
+    c.type = _type
     c.url = url
     c.token = token
     c.shard = shard
