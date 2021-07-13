@@ -58,12 +58,29 @@ class HybridClient:
         data = r.json()
         self.token = data["token"]
         self.display_name = data["display_name"]
+        self.upload_address = data["upload_address"]
         
         print(f"[crawling@home] worker name: {self.display_name}")
         print(f"\n\nYou can view this worker's progress at {self.url + 'worker/hybrid/' + self.display_name}\n")
     
     
     # Finds the amount of available jobs from the server, returning an integer.
+    def updateUploadServer(self):
+        r = self.s.get(self.url + "api/getUploadAddress")
+
+        if r.status_code != 200:
+            try:
+                self.log("Crashed", crashed=True)
+            except:
+                pass
+            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+
+        self.upload_address = r.text
+        
+        print(f"[crawling@home] updated upload server address")
+    
+    
+    # Updates the upload server.
     def jobCount(self):
         r = self.s.get(self.url + "api/jobCount", params={"type": "HYBRID"})
 
@@ -220,9 +237,26 @@ class CPUClient:
         data = r.json()
         self.token = data["token"]
         self.display_name = data["display_name"]
+        self.upload_address = data["upload_address"]
         
         print(f"[crawling@home] worker name: {self.display_name}")
         print(f"\n\nYou can view this worker's progress at {self.url + 'worker/cpu/' + self.display_name}\n")
+    
+    
+    # Finds the amount of available jobs from the server, returning an integer.
+    def updateUploadServer(self):
+        r = self.s.get(self.url + "api/getUploadAddress")
+
+        if r.status_code != 200:
+            try:
+                self.log("Crashed", crashed=True)
+            except:
+                pass
+            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+
+        self.upload_address = r.text
+        
+        print(f"[crawling@home] updated upload server address")
     
     
     # Finds the amount of available jobs from the server, returning an integer.
@@ -381,9 +415,26 @@ class GPUClient:
         data = r.json()
         self.token = data["token"]
         self.display_name = data["display_name"]
+        self.upload_address = data["upload_address"]
         
         print(f"[crawling@home] worker name: {self.display_name}")
         print(f"\n\nYou can view this worker's progress at {self.url + 'worker/gpu/' + self.display_name}\n")
+    
+    
+    # Finds the amount of available jobs from the server, returning an integer.
+    def updateUploadServer(self):
+        r = self.s.get(self.url + "api/getUploadAddress")
+
+        if r.status_code != 200:
+            try:
+                self.log("Crashed", crashed=True)
+            except:
+                pass
+            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+
+        self.upload_address = r.text
+        
+        print(f"[crawling@home] updated upload server address")
     
     
     # Finds the amount of available jobs from the server, returning an integer.
