@@ -291,18 +291,22 @@ class CPUClient:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard", noprint=True)
 
-        with self.s.get(self.shard, stream=True) as r:
-            r.raise_for_status()
-            with open("temp.gz", 'w+b') as f:
-                for chunk in r.iter_content(chunk_size=8192): 
-                    f.write(chunk)
-        
-        with gzip.open('temp.gz', 'rb') as f_in:
-            with open('shard.wat', 'w+b') as f_out:
-                shutil.copyfileobj(f_in, f_out)
-        
-        sleep(1) # Causes errors otherwise?
-        os.remove("temp.gz")
+        if self.shard.startswith('http'):
+            with self.s.get(self.shard, stream=True) as r:
+                r.raise_for_status()
+                with open("temp.gz", 'w+b') as f:
+                    for chunk in r.iter_content(chunk_size=8192): 
+                        f.write(chunk)
+            
+            with gzip.open('temp.gz', 'rb') as f_in:
+                with open('shard.wat', 'w+b') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            
+            sleep(1) # Causes errors otherwise?
+            os.remove("temp.gz")
+        else: # self.shard.startswith('rsync'):
+            uid = self.shard[5:].strip()
+            os.system(f'rsync archiveteam@88.198.2.17::gpujobs/{uid} save')
 
         self.log("Downloaded shard", noprint=True)
         print("[crawling@home] finished downloading shard")
