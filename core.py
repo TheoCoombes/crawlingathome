@@ -291,22 +291,18 @@ class CPUClient:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard", noprint=True)
 
-        if self.shard.startswith('http'):
-            with self.s.get(self.shard, stream=True) as r:
-                r.raise_for_status()
-                with open("temp.gz", 'w+b') as f:
-                    for chunk in r.iter_content(chunk_size=8192): 
-                        f.write(chunk)
+        with self.s.get(self.shard, stream=True) as r:
+            r.raise_for_status()
+            with open("temp.gz", 'w+b') as f:
+                for chunk in r.iter_content(chunk_size=8192): 
+                    f.write(chunk)
             
-            with gzip.open('temp.gz', 'rb') as f_in:
-                with open('shard.wat', 'w+b') as f_out:
-                    shutil.copyfileobj(f_in, f_out)
+        with gzip.open('temp.gz', 'rb') as f_in:
+            with open('shard.wat', 'w+b') as f_out:
+                shutil.copyfileobj(f_in, f_out)
             
-            sleep(1) # Causes errors otherwise?
-            os.remove("temp.gz")
-        else: # self.shard.startswith('rsync'):
-            uid = self.shard[5:].strip()
-            os.system(f'rsync archiveteam@88.198.2.17::gpujobs/{uid} save')
+        sleep(1) # Causes errors otherwise?
+        os.remove("temp.gz")
 
         self.log("Downloaded shard", noprint=True)
         print("[crawling@home] finished downloading shard")
@@ -479,29 +475,35 @@ class GPUClient:
     
     
     # Downloads the CPU worker's processed images to the ./images/ (`path`) directory
-    def downloadShard(self, path="./images"):
-        print("[crawling@home] downloading uploaded data...")
-        self.log("Fetching images", noprint=True)
+    def downloadShard(self):
+        print("[crawling@home] downloading shard...")
+        self.log("Downloading shard", noprint=True)
 
-        with self.s.get(self.shard, stream=True) as r:
-            r.raise_for_status()
-            with open("temp.tar", 'w+b') as f:
-                for chunk in r.iter_content(chunk_size=8192): 
-                    f.write(chunk)
-        
-        try:
-            os.mkdir(path)
-        except:
-            pass
-        
-        with tarfile.open('temp.tar', 'r') as tar:
-            tar.extractall(path)
-        
-        sleep(1) # Causes errors otherwise?
-        os.remove("temp.tar")
+        if self.shard.startswith('http'):
+            with self.s.get(self.shard, stream=True) as r:
+                r.raise_for_status()
+                with open("temp.gz", 'w+b') as f:
+                    for chunk in r.iter_content(chunk_size=8192): 
+                        f.write(chunk)
+            
+            with gzip.open('temp.gz', 'rb') as f_in:
+                with open('shard.wat', 'w+b') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            
+            sleep(1) # Causes errors otherwise?
+            os.remove("temp.gz")
+        elif self.shard.startswith('rsync'):
+            uid = self.shard.split('rsync', 1)[-1].strip()
+            resp = 0
+            while resp:
+                resp = os.system(f'rsync -rzh archiveteam@88.198.2.17::gpujobs/{uid}/* {uid}')
+                if resp == 5888:
+                    print('[crawling@home] rsync job not found')
+                    self.invalidURL()
+                    return                
 
-        self.log("Downloaded images", noprint=True)
-        print("[crawling@home] finished downloading data")
+        self.log("Downloaded shard", noprint=True)
+        print("[crawling@home] finished downloading shard")
         
     
     # Uploads the image download URL for the GPU workers to use, marking the CPU job complete.
@@ -557,4 +559,3 @@ class GPUClient:
     def bye(self):
         self.s.post(self.url + "api/bye", json={"token": self.token, "type": "GPU"})
         print("[crawling@home] closed worker")
-        
