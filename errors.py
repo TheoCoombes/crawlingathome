@@ -9,3 +9,6 @@ class ZeroJobError(Exception):
 
 class DumpError(Exception):
     pass
+
+class InvalidURLError(Exception):
+    pass
