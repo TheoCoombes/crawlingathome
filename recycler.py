@@ -1,6 +1,6 @@
 import numpy as np
 
-from .core import HybridClient
+from .core import HybridClient, CPUClient, GPUClient
 from .errors import *
 
 # Dump a client's attributes into a dictionary so that it can be used remotely.

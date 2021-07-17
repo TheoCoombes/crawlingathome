@@ -494,13 +494,17 @@ class GPUClient:
             os.remove("temp.gz")
         elif self.shard.startswith('rsync'):
             uid = self.shard.split('rsync', 1)[-1].strip()
-            resp = 0
+            resp = 1
             while resp:
                 resp = os.system(f'rsync -rzh archiveteam@88.198.2.17::gpujobs/{uid}/* {uid}')
                 if resp == 5888:
                     print('[crawling@home] rsync job not found')
                     self.invalidURL()
-                    return                
+                    print('[crawling@home] ')
+                    return
+        else:
+            self.invalidURL()
+            return
 
         self.log("Downloaded shard", noprint=True)
         print("[crawling@home] finished downloading shard")
