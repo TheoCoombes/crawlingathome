@@ -472,6 +472,7 @@ class GPUClient:
             print("[crawling@home] something went wrong when flagging a URL as invalid - not raising error.")
         else:
             print("[crawling@home] successfully flagged url as invalid")
+        raise InvalidURLError('[crawling@home] Invalid URL')
     
     
     # Downloads the CPU worker's processed images to the ./images/ (`path`) directory
@@ -495,16 +496,15 @@ class GPUClient:
         elif self.shard.startswith('rsync'):
             uid = self.shard.split('rsync', 1)[-1].strip()
             resp = 1
-            while resp:
+            for _ in range(5):
                 resp = os.system(f'rsync -rzh archiveteam@88.198.2.17::gpujobs/{uid}/* {uid}')
                 if resp == 5888:
                     print('[crawling@home] rsync job not found')
                     self.invalidURL()
-                    print('[crawling@home] ')
-                    return
+                if resp == 0:
+                    break
         else:
             self.invalidURL()
-            return
 
         self.log("Downloaded shard", noprint=True)
         print("[crawling@home] finished downloading shard")
