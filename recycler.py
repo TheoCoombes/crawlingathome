@@ -7,7 +7,7 @@ from .errors import *
 def dump(c):
     try:
         return {
-            "type": c.type,
+            "_type": c.type,
             "url": c.url,
             "token": c.token,
             "shard": c.shard if hasattr(c, 'shard') else None,
@@ -24,13 +24,14 @@ def load(url=None, token=None, shard=None,
               _type=None, shard_piece=None):
     
     if _type == "HYBRID":
-        c = HybridClient(*[None] * 5, _recycled=True)
+        c = HybridClient(*[None] * 2, _recycled=True)
     elif _type == "CPU":
-        c = CPUClient(*[None] * 5, _recycled=True)
+        c = CPUClient(*[None] * 2, _recycled=True)
     elif _type == "GPU":
-        c = GPUClient(*[None] * 5, _recycled=True)
+        c = GPUClient(*[None] * 2, _recycled=True)
     else:
         raise ValueError(f"Invalid worker type: {_type}")
+        
     c.type = _type
     c.url = url
     c.token = token
@@ -38,4 +39,5 @@ def load(url=None, token=None, shard=None,
     c.start_id = start_id if isinstance(start_id, np.int64) else np.int64(start_id)
     c.end_id = end_id if isinstance(end_id, np.int64) else np.int64(end_id)
     c.shard_piece = shard_piece
+    
     return c
