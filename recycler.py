@@ -1,7 +1,9 @@
 import numpy as np
+from requests import session
 
-from .core import HybridClient, CPUClient, GPUClient
+from .core import CPUClient, GPUClient, HybridClient
 from .errors import *
+
 
 # Dump a client's attributes into a dictionary so that it can be used remotely.
 def dump(c):
@@ -31,7 +33,7 @@ def load(url=None, token=None, shard=None,
         c = GPUClient(*[None] * 2, _recycled=True)
     else:
         raise ValueError(f"Invalid worker type: {_type}")
-        
+    c.s = session()
     c.type = _type
     c.url = url
     c.token = token
