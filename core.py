@@ -16,7 +16,7 @@ from .errors import *
 
 
 # Creates and returns a new node instance.
-def init(url="http://crawlingathome.duckdns.org/", nickname=None, type="Hybrid"):
+def init(url="http://crawlingathome.duckdns.org/", nickname="anonymous", type="Hybrid"):
     if isinstance(type, str):
         type = type.lower()[0]
         
@@ -32,7 +32,7 @@ def init(url="http://crawlingathome.duckdns.org/", nickname=None, type="Hybrid")
 
 # The main 'hybrid' client instance.
 class HybridClient:
-    def __init__(self, url, nickname, _recycled=False):
+    def __init__(self, url, nickname, _recycled=False) -> None:
         if _recycled:
             return
         
@@ -42,6 +42,7 @@ class HybridClient:
         self.s = session()
         self.url = url
         self.type = "HYBRID"
+        self.nickname = nickname
 
         print("[crawling@home] connecting to crawling@home server...")
         payload = {"nickname": nickname, "type": "HYBRID"}
@@ -65,7 +66,7 @@ class HybridClient:
     
     
     # Finds the amount of available jobs from the server, returning an integer.
-    def updateUploadServer(self):
+    def updateUploadServer(self) -> None:
         r = self.s.get(self.url + "api/getUploadAddress")
 
         if r.status_code != 200:
@@ -81,7 +82,7 @@ class HybridClient:
     
     
     # Updates the upload server.
-    def jobCount(self):
+    def jobCount(self) -> int:
         r = self.s.get(self.url + "api/jobCount", params={"type": "HYBRID"})
 
         if r.status_code != 200:
@@ -99,7 +100,7 @@ class HybridClient:
 
     
     # Makes the node send a request to the server, asking for a new job.
-    def newJob(self):
+    def newJob(self) -> None:
         print("[crawling@home] looking for new job...")
 
         r = self.s.post(self.url + "api/newJob", json={"token": self.token, "type": "HYBRID"})
@@ -125,7 +126,7 @@ class HybridClient:
     
     
     # Downloads the current job's shard to the current directory (./shard.wat)
-    def downloadShard(self):
+    def downloadShard(self) -> None:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard", noprint=True)
 
@@ -147,7 +148,7 @@ class HybridClient:
 
 
     # Marks a job as completed/done.
-    def completeJob(self, total_scraped : int):
+    def completeJob(self, total_scraped : int) -> None:
         r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "HYBRID"})
         print("[crawling@home] marked job as done")
         
@@ -160,13 +161,13 @@ class HybridClient:
 
     
     # Wrapper for `completeJob` (for older workers)
-    def _markjobasdone(self, total_scraped : int):
+    def _markjobasdone(self, total_scraped : int) -> None:
         print("[crawling@home] WARNING: avoid using `_markjobasdone(...)` and instead use `completeJob(...)` to mark a job as done.")
         self.completeJob(total_scraped)
         
 
     # Logs the string progress into the server.
-    def log(self, progress : str, crashed=False, noprint=False):
+    def log(self, progress : str, crashed=False, noprint=False) -> None:
         data = {"token": self.token, "progress": progress, "type": "HYBRID"}
 
         r = self.s.post(self.url + "api/updateProgress", json=data)
@@ -182,13 +183,21 @@ class HybridClient:
     
     
     # Client wrapper for `recycler.dump`.
-    def dump(self):
+    def dump(self) -> dict:
         from .recycler import dump as _dump
         return _dump(self)
     
     
+    def recreate(self) -> None:
+        print("[crawling@home] recreating client instance...")
+        new = HybridClient(self.url, self.nickname)
+        self.token = new.token
+        self.display_name = new.display_name
+        self.upload_address = new.upload_address
+    
+    
     # Returns True if the worker is still alive, otherwise returns False.
-    def isAlive(self):
+    def isAlive(self) -> bool:
         r = self.s.post(self.url + "api/validateWorker", json={"token": self.token, "type": "HYBRID"})
 
         if r.status_code != 200:
@@ -202,7 +211,7 @@ class HybridClient:
     
     
     # Removes the node instance from the server, ending all current jobs.
-    def bye(self):
+    def bye(self) -> None:
         self.s.post(self.url + "api/bye", json={"token": self.token, "type": "HYBRID"})
         print("[crawling@home] closed worker")
 
@@ -211,7 +220,7 @@ class HybridClient:
 # The CPU client instance.
 # Programatically similar to `HybridClient`, with different completion functions.
 class CPUClient:
-    def __init__(self, url, nickname, _recycled=False):
+    def __init__(self, url, nickname, _recycled=False) -> None:
         if _recycled:
             return
         
@@ -221,6 +230,7 @@ class CPUClient:
         self.s = session()
         self.url = url
         self.type = "CPU"
+        self.nickname = nickname
 
         print("[crawling@home] connecting to crawling@home server...")
         payload = {"nickname": nickname, "type": "CPU"}
@@ -243,7 +253,7 @@ class CPUClient:
     
     
     # Finds the amount of available jobs from the server, returning an integer.
-    def jobCount(self):
+    def jobCount(self) -> int:
         r = self.s.get(self.url + "api/jobCount", params={"type": "CPU"})
 
         if r.status_code != 200:
@@ -261,7 +271,7 @@ class CPUClient:
     
     
     # Makes the node send a request to the server, asking for a new job.
-    def newJob(self):
+    def newJob(self) -> None:
         print("[crawling@home] looking for new job...")
 
         r = self.s.post(self.url + "api/newJob", json={"token": self.token, "type": "CPU"})
@@ -287,7 +297,7 @@ class CPUClient:
     
     
     # Downloads the current job's shard to the current directory (./shard.wat)
-    def downloadShard(self):
+    def downloadShard(self) -> None:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard", noprint=True)
 
@@ -309,14 +319,12 @@ class CPUClient:
         
     
     # Uploads the image download URL for the GPU workers to use, marking the CPU job complete.
-    def completeJob(self, image_download_url : str):
-        body = {
+    def completeJob(self, image_download_url : str) -> None:
+        r = self.s.post(self.url + "api/markAsDone", json={
+            "token": self.token,
             "url": image_download_url,
-            "start_id": str(self.start_id),
-            "end_id": str(self.end_id),
-            "shard": self.shard_piece
-        }
-        r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, **body, "type": "CPU"})
+            "type": "CPU"
+        })
         print("[crawling@home] marked job as done")
         
         if r.status_code != 200:
@@ -328,7 +336,7 @@ class CPUClient:
     
     
     # Logs the string progress into the server.
-    def log(self, progress : str, crashed=False, noprint=False):
+    def log(self, progress : str, crashed=False, noprint=False) -> None:
         data = {"token": self.token, "progress": progress, "type": "CPU"}
 
         r = self.s.post(self.url + "api/updateProgress", json=data)
@@ -344,13 +352,22 @@ class CPUClient:
     
     
     # Client wrapper for `recycler.dump`.
-    def dump(self):
+    def dump(self) -> dict:
         from .recycler import dump as _dump
         return _dump(self)
     
     
+    # Recreates the client with the server, giving the client a new auth token, upload server and display name.
+    def recreate(self) -> None:
+        print("[crawling@home] recreating client instance...")
+        new = CPUClient(self.url, self.nickname)
+        self.token = new.token
+        self.display_name = new.display_name
+        self.upload_address = new.upload_address
+    
+    
     # Returns True if the worker is still alive, otherwise returns False.
-    def isAlive(self):
+    def isAlive(self) -> bool:
         r = self.s.post(self.url + "api/validateWorker", json={"token": self.token, "type": "CPU"})
 
         if r.status_code != 200:
@@ -364,7 +381,7 @@ class CPUClient:
     
     
     # Removes the node instance from the server, ending all current jobs.
-    def bye(self):
+    def bye(self) -> None:
         self.s.post(self.url + "api/bye", json={"token": self.token, "type": "CPU"})
         print("[crawling@home] closed worker")
 
@@ -372,7 +389,7 @@ class CPUClient:
 
 # The GPU client instance.
 class GPUClient:
-    def __init__(self, url, nickname, _recycled=False):
+    def __init__(self, url, nickname, _recycled=False) -> None:
         if _recycled:
             return
         
@@ -382,6 +399,7 @@ class GPUClient:
         self.s = session()
         self.url = url
         self.type = "GPU"
+        self.nickname = nickname
 
         print("[crawling@home] connecting to crawling@home server...")
         payload = {"nickname": nickname, "type": "GPU"}
@@ -405,7 +423,7 @@ class GPUClient:
     
     
     # Finds the amount of available jobs from the server, returning an integer.
-    def updateUploadServer(self):
+    def updateUploadServer(self) -> None:
         r = self.s.get(self.url + "api/getUploadAddress")
 
         if r.status_code != 200:
@@ -421,7 +439,7 @@ class GPUClient:
     
     
     # Finds the amount of available jobs from the server, returning an integer.
-    def jobCount(self):
+    def jobCount(self) -> int:
         r = self.s.get(self.url + "api/jobCount", params={"type": "GPU"})
 
         if r.status_code != 200:
@@ -439,7 +457,7 @@ class GPUClient:
     
     
     # Makes the node send a request to the server, asking for a new job.
-    def newJob(self):
+    def newJob(self) -> None:
         print("[crawling@home] looking for new job...")
 
         r = self.s.post(self.url + "api/newJob", json={"token": self.token, "type": "GPU"})
@@ -465,7 +483,7 @@ class GPUClient:
             
     
     # Flags a GPU job's URL as invalid to the server.
-    def invalidURL(self):
+    def invalidURL(self) -> None:
         r = self.s.post(self.url + "api/gpuInvalidDownload", json={"token": self.token, "type": "GPU"})
         
         if r.status_code != 200:
@@ -476,7 +494,7 @@ class GPUClient:
     
     
     # Downloads the CPU worker's processed images to the ./images/ (`path`) directory
-    def downloadShard(self):
+    def downloadShard(self) -> None:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard", noprint=True)
 
@@ -511,7 +529,7 @@ class GPUClient:
         
     
     # Uploads the image download URL for the GPU workers to use, marking the CPU job complete.
-    def completeJob(self, total_scraped : int):
+    def completeJob(self, total_scraped : int) -> None:
         r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "GPU"})
         print("[crawling@home] marked job as done")
         
@@ -524,7 +542,7 @@ class GPUClient:
     
     
     # Logs the string progress into the server.
-    def log(self, progress : str, crashed=False, noprint=False):
+    def log(self, progress : str, crashed=False, noprint=False) -> None:
         data = {"token": self.token, "progress": progress, "type": "GPU"}
 
         r = self.s.post(self.url + "api/updateProgress", json=data)
@@ -540,13 +558,22 @@ class GPUClient:
     
     
     # Client wrapper for `recycler.dump`.
-    def dump(self):
+    def dump(self) -> dict:
         from .recycler import dump as _dump
         return _dump(self)
     
     
+    # Recreates the client with the server, giving the client a new auth token, upload server and display name.
+    def recreate(self) -> None:
+        print("[crawling@home] recreating client instance...")
+        new = GPUClient(self.url, self.nickname)
+        self.token = new.token
+        self.display_name = new.display_name
+        self.upload_address = new.upload_address
+    
+    
     # Returns True if the worker is still alive, otherwise returns False.
-    def isAlive(self):
+    def isAlive(self) -> bool:
         r = self.s.post(self.url + "api/validateWorker", json={"token": self.token, "type": "GPU"})
 
         if r.status_code != 200:
@@ -560,6 +587,6 @@ class GPUClient:
     
     
     # Removes the node instance from the server, ending all current jobs.
-    def bye(self):
+    def bye(self) -> None:
         self.s.post(self.url + "api/bye", json={"token": self.token, "type": "GPU"})
         print("[crawling@home] closed worker")
