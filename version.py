@@ -1,4 +1,4 @@
-VERSION = "1.4.0"
+VERSION = "1.4.1"
 GITHUB = "https://github.com/TheoCoombes/crawlingathome"
 
 def PrintVersion():
