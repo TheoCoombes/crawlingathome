@@ -16,21 +16,6 @@ import os
 from .errors import *
 
 
-# Creates and returns a new client instance.
-def init(url="http://crawlingathome.duckdns.org/", nickname="anonymous", type="Hybrid") -> Optional[Union[HybridClient, CPUClient, GPUClient]]:
-    if isinstance(type, str):
-        type = type.lower()[0]
-        
-    if type == "h" or type == HybridClient:
-        return HybridClient(url, nickname)
-    elif type == "c" or type == CPUClient:
-        return CPUClient(url, nickname)
-    elif type == "g" or type == GPUClient:
-        return GPUClient(url, nickname)
-    else:
-        raise ValueError(f"[crawling@home] invalid worker `{type}`")
-
-
 # The main 'hybrid' client instance.
 class HybridClient:
     def __init__(self, url, nickname, _recycled=False) -> None:
@@ -591,3 +576,18 @@ class GPUClient:
     def bye(self) -> None:
         self.s.post(self.url + "api/bye", json={"token": self.token, "type": "GPU"})
         print("[crawling@home] closed worker")
+
+
+# Creates and returns a new client instance.
+def init(url="http://crawlingathome.duckdns.org/", nickname="anonymous", type="Hybrid") -> Optional[Union[HybridClient, CPUClient, GPUClient]]:
+    if isinstance(type, str):
+        type = type.lower()[0]
+        
+    if type == "h" or type == HybridClient:
+        return HybridClient(url, nickname)
+    elif type == "c" or type == CPUClient:
+        return CPUClient(url, nickname)
+    elif type == "g" or type == GPUClient:
+        return GPUClient(url, nickname)
+    else:
+        raise ValueError(f"[crawling@home] invalid worker `{type}`")
