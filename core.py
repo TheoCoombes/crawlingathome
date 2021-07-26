@@ -4,6 +4,7 @@
 # TheoCoombes/crawlingathome #
 ##############################
 
+from typing import Optional, Union
 from requests import session
 from time import sleep
 import numpy as np
@@ -15,8 +16,8 @@ import os
 from .errors import *
 
 
-# Creates and returns a new node instance.
-def init(url="http://crawlingathome.duckdns.org/", nickname="anonymous", type="Hybrid"):
+# Creates and returns a new client instance.
+def init(url="http://crawlingathome.duckdns.org/", nickname="anonymous", type="Hybrid") -> Optional[Union[HybridClient, CPUClient, GPUClient]]:
     if isinstance(type, str):
         type = type.lower()[0]
         
