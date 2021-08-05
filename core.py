@@ -4,8 +4,8 @@
 # TheoCoombes/crawlingathome #
 ##############################
 
+from requests import session, Response
 from typing import Optional, Union
-from requests import session
 from time import sleep
 import numpy as np
 import tarfile
@@ -15,14 +15,25 @@ import os
 
 from .errors import *
 
-def _safe_request(function, *args, **kwargs):
+def _safe_request(function, *args, **kwargs) -> Response:
     try:
-        r = function(*args, **kwargs)
+        return function(*args, **kwargs)
     except Exception as e:
         print(f"[crawling@home] retrying request after {e} error...")
         sleep(60)
         return _safe_request(function, *args, **kwargs)
 
+def _handle_exceptions(status_code: int, text: str) -> None:
+    elif status_code == 404:
+        raise WorkerTimedOutError("[crawling@home] It appears the worker instance timed out. (status 404)")
+    elif status_code == 403:
+        raise ZeroJobError("[crawling@home] Either there was an error finding a job, or there are no more jobs remaining. (status 403)")
+    elif status_code == 400:
+        raise ValueError("[crawling@home] The worker provided an invalid input to a request. (status 400)")
+    else:
+        raise ServerError(f"[crawling@home] A server error occured. (status {status_code})\n{text}\n")
+    
+    
 
 # The main 'hybrid' client instance.
 class HybridClient:
@@ -47,7 +58,7 @@ class HybridClient:
                 self.log("Crashed", crashed=True)
             except:
                 pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        _handle_exceptions(r.status_code, r.text)
 
         print("[crawling@home] connected to crawling@home server")
         data = r.json()
