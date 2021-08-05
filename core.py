@@ -27,13 +27,13 @@ def _handle_exceptions(status_code: int, text: str) -> Optional[Exception]:
     if status_code == 200:
         return None
     elif status_code == 400:
-        return ValueError("[crawling@home] The worker provided an invalid input to a request. (status 400)")
+        return ValueError(f"[crawling@home] {text} (status {status_code})")
     elif status_code == 403:
-        return ZeroJobError("[crawling@home] Either there was an error finding a job, or there are no more jobs remaining. (status 403)")
+        return ZeroJobError(f"[crawling@home] {text} (status {status_code})")
     elif status_code == 404:
-        return WorkerTimedOutError("[crawling@home] It appears the worker instance timed out. (status 404)")
+        return WorkerTimedOutError(f"[crawling@home] {text} (status {status_code})")
     else:
-        return ServerError(f"[crawling@home] A server error occured. (status {status_code})\n{text}\n")
+        return ServerError(f"[crawling@home] {text} (status {status_code})")
     
     
 
