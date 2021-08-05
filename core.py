@@ -15,15 +15,6 @@ import os
 
 from .errors import *
 
-def _safe_request(function, *args, **kwargs):
-    try:
-        r = function(*args, **kwargs)
-    except Exception as e:
-        print(f"[crawling@home] retrying request after {e} error...")
-        sleep(60)
-        return _safe_request(function, *args, **kwargs)
-        
-
 
 # The main 'hybrid' client instance.
 class HybridClient:
@@ -41,7 +32,7 @@ class HybridClient:
 
         print("[crawling@home] connecting to crawling@home server...")
         payload = {"nickname": nickname, "type": "HYBRID"}
-        r = _safe_request(self.s.get, self.url + "api/new", params=payload)
+        r = self.s.get(self.url + "api/new", params=payload)
 
         if r.status_code != 200:
             try:
@@ -62,7 +53,7 @@ class HybridClient:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def updateUploadServer(self) -> None:
-        r = _safe_request(self.s.get, self.url + "api/getUploadAddress", params={"type": "HYBRID"})
+        r = self.s.get(self.url + "api/getUploadAddress", params={"type": "HYBRID"})
 
         if r.status_code != 200:
             try:
@@ -78,7 +69,7 @@ class HybridClient:
     
     # Updates the upload server.
     def jobCount(self) -> int:
-        r = _safe_request(self.s.get, self.url + "api/jobCount", params={"type": "HYBRID"})
+        r = self.s.get(self.url + "api/jobCount", params={"type": "HYBRID"})
 
         if r.status_code != 200:
             try:
@@ -98,7 +89,7 @@ class HybridClient:
     def newJob(self) -> None:
         print("[crawling@home] looking for new job...")
 
-        r = _safe_request(self.s.post, self.url + "api/newJob", json={"token": self.token, "type": "HYBRID"})
+        r = self.s.post(self.url + "api/newJob", json={"token": self.token, "type": "HYBRID"})
 
         if r.status_code != 200:
             try:
@@ -144,7 +135,7 @@ class HybridClient:
 
     # Marks a job as completed/done.
     def completeJob(self, total_scraped : int) -> None:
-        r = _safe_request(self.s.post, self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "HYBRID"})
+        r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "HYBRID"})
         print("[crawling@home] marked job as done")
         
         if r.status_code != 200:
@@ -165,7 +156,7 @@ class HybridClient:
     def log(self, progress : str, crashed=False, noprint=False) -> None:
         data = {"token": self.token, "progress": progress, "type": "HYBRID"}
 
-        r = _safe_request(self.s.post, self.url + "api/updateProgress", json=data)
+        r = self.s.post(self.url + "api/updateProgress", json=data)
         if not crashed and not noprint:
             print(f"[crawling@home] logged new progress data: {progress}")
 
@@ -193,7 +184,7 @@ class HybridClient:
     
     # Returns True if the worker is still alive, otherwise returns False.
     def isAlive(self) -> bool:
-        r = _safe_request(self.s.post, self.url + "api/validateWorker", json={"token": self.token, "type": "HYBRID"})
+        r = self.s.post(self.url + "api/validateWorker", json={"token": self.token, "type": "HYBRID"})
 
         if r.status_code != 200:
             try:
@@ -229,7 +220,7 @@ class CPUClient:
 
         print("[crawling@home] connecting to crawling@home server...")
         payload = {"nickname": nickname, "type": "CPU"}
-        r = _safe_request(self.s.get, self.url + "api/new", params=payload)
+        r = self.s.get(self.url + "api/new", params=payload)
 
         if r.status_code != 200:
             try:
@@ -250,7 +241,7 @@ class CPUClient:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def updateUploadServer(self) -> None:
-        r = _safe_request(self.s.get, self.url + "api/getUploadAddress", params={"type": "CPU"})
+        r = self.s.get(self.url + "api/getUploadAddress", params={"type": "CPU"})
 
         if r.status_code != 200:
             try:
@@ -266,7 +257,7 @@ class CPUClient:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def jobCount(self) -> int:
-        r = _safe_request(self.s.get, self.url + "api/jobCount", params={"type": "CPU"})
+        r = self.s.get(self.url + "api/jobCount", params={"type": "CPU"})
 
         if r.status_code != 200:
             try:
@@ -286,7 +277,7 @@ class CPUClient:
     def newJob(self) -> None:
         print("[crawling@home] looking for new job...")
 
-        r = _safe_request(self.s.post, self.url + "api/newJob", json={"token": self.token, "type": "CPU"})
+        r = self.s.post(self.url + "api/newJob", json={"token": self.token, "type": "CPU"})
 
         if r.status_code != 200:
             try:
@@ -332,7 +323,7 @@ class CPUClient:
     
     # Uploads the image download URL for the GPU workers to use, marking the CPU job complete.
     def completeJob(self, image_download_url : str) -> None:
-        r = _safe_request(self.s.post, self.url + "api/markAsDone", json={
+        r = self.s.post(self.url + "api/markAsDone", json={
             "token": self.token,
             "url": image_download_url,
             "type": "CPU"
@@ -351,7 +342,7 @@ class CPUClient:
     def log(self, progress : str, crashed=False, noprint=False) -> None:
         data = {"token": self.token, "progress": progress, "type": "CPU"}
 
-        r = _safe_request(self.s.post, self.url + "api/updateProgress", json=data)
+        r = self.s.post(self.url + "api/updateProgress", json=data)
         if not crashed and not noprint:
             print(f"[crawling@home] logged new progress data: {progress}")
 
