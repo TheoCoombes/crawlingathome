@@ -22,7 +22,6 @@ def _safe_request(function, *args, **kwargs):
         print(f"[crawling@home] retrying request after {e} error...")
         sleep(60)
         return _safe_request(function, *args, **kwargs)
-        
 
 
 # The main 'hybrid' client instance.
@@ -207,7 +206,7 @@ class HybridClient:
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self) -> None:
-        self.s.post(self.url + "api/bye", json={"token": self.token, "type": "HYBRID"})
+        _safe_request(self.s.post, self.url + "api/bye", json={"token": self.token, "type": "HYBRID"})
         print("[crawling@home] closed worker")
 
         
@@ -380,7 +379,7 @@ class CPUClient:
     
     # Returns True if the worker is still alive, otherwise returns False.
     def isAlive(self) -> bool:
-        r = self.s.post(self.url + "api/validateWorker", json={"token": self.token, "type": "CPU"})
+        r = _safe_request(self.s.post, self.url + "api/validateWorker", json={"token": self.token, "type": "CPU"})
 
         if r.status_code != 200:
             try:
@@ -394,7 +393,7 @@ class CPUClient:
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self) -> None:
-        self.s.post(self.url + "api/bye", json={"token": self.token, "type": "CPU"})
+        _safe_request(self.s.post, self.url + "api/bye", json={"token": self.token, "type": "CPU"})
         print("[crawling@home] closed worker")
 
 
@@ -415,7 +414,7 @@ class GPUClient:
 
         print("[crawling@home] connecting to crawling@home server...")
         payload = {"nickname": nickname, "type": "GPU"}
-        r = self.s.get(self.url + "api/new", params=payload)
+        r = _safe_request(self.s.get, self.url + "api/new", params=payload)
 
         if r.status_code != 200:
             try:
@@ -436,7 +435,7 @@ class GPUClient:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def updateUploadServer(self) -> None:
-        r = self.s.get(self.url + "api/getUploadAddress", params={"type": "GPU"})
+        r = _safe_request(self.s.get, self.url + "api/getUploadAddress", params={"type": "GPU"})
 
         if r.status_code != 200:
             try:
@@ -452,7 +451,7 @@ class GPUClient:
     
     # Finds the amount of available jobs from the server, returning an integer.
     def jobCount(self) -> int:
-        r = self.s.get(self.url + "api/jobCount", params={"type": "GPU"})
+        r = _safe_request(self.s.get, self.url + "api/jobCount", params={"type": "GPU"})
 
         if r.status_code != 200:
             try:
@@ -472,7 +471,7 @@ class GPUClient:
     def newJob(self) -> None:
         print("[crawling@home] looking for new job...")
 
-        r = self.s.post(self.url + "api/newJob", json={"token": self.token, "type": "GPU"})
+        r = _safe_request(self.s.post, self.url + "api/newJob", json={"token": self.token, "type": "GPU"})
 
         if r.status_code != 200:
             try:
@@ -496,7 +495,7 @@ class GPUClient:
     
     # Flags a GPU job's URL as invalid to the server.
     def invalidURL(self) -> None:
-        r = self.s.post(self.url + "api/gpuInvalidDownload", json={"token": self.token, "type": "GPU"})
+        r = _safe_request(self.s.post, self.url + "api/gpuInvalidDownload", json={"token": self.token, "type": "GPU"})
         
         if r.status_code != 200:
             print("[crawling@home] something went wrong when flagging a URL as invalid - not raising error.")
@@ -527,11 +526,13 @@ class GPUClient:
             uid = self.shard.split('rsync', 1)[-1].strip()
             resp = 1
             for _ in range(5):
-                resp = os.system(f'rsync -rzh archiveteam@88.198.2.17::gpujobs/{uid}/* {uid}')
+                resp = os.system(f'rsync -av archiveteam@5.9.55.230::gpujobs/{uid}.tar.gz {uid}.tar.gz')
                 if resp == 5888:
                     print('[crawling@home] rsync job not found')
                     self.invalidURL()
                 if resp == 0:
+                    with tarfile.open(f"{uid}.tar.gz", "r:gz") as tar:
+                        tar.extractall()
                     break
         else:
             self.invalidURL()
@@ -542,7 +543,7 @@ class GPUClient:
     
     # Uploads the image download URL for the GPU workers to use, marking the CPU job complete.
     def completeJob(self, total_scraped : int) -> None:
-        r = self.s.post(self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "GPU"})
+        r = _safe_request(self.s.post, self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "GPU"})
         print("[crawling@home] marked job as done")
         
         if r.status_code != 200:
@@ -557,7 +558,7 @@ class GPUClient:
     def log(self, progress : str, crashed=False, noprint=False) -> None:
         data = {"token": self.token, "progress": progress, "type": "GPU"}
 
-        r = self.s.post(self.url + "api/updateProgress", json=data)
+        r = _safe_request(self.s.post, self.url + "api/updateProgress", json=data)
         if not crashed and not noprint:
             print(f"[crawling@home] logged new progress data: {progress}")
 
@@ -586,7 +587,7 @@ class GPUClient:
     
     # Returns True if the worker is still alive, otherwise returns False.
     def isAlive(self) -> bool:
-        r = self.s.post(self.url + "api/validateWorker", json={"token": self.token, "type": "GPU"})
+        r = _safe_request(self.s.post, self.url + "api/validateWorker", json={"token": self.token, "type": "GPU"})
 
         if r.status_code != 200:
             try:
@@ -600,7 +601,7 @@ class GPUClient:
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self) -> None:
-        self.s.post(self.url + "api/bye", json={"token": self.token, "type": "GPU"})
+        _safe_request(self.s.post, self.url + "api/bye", json={"token": self.token, "type": "GPU"})
         print("[crawling@home] closed worker")
 
 
