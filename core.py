@@ -145,12 +145,13 @@ class HybridClient:
     # Marks a job as completed/done.
     def completeJob(self, total_scraped : int) -> None:
         r = _safe_request(self.s.post, self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "HYBRID"})
-        print("[crawling@home] marked job as done")
         
         exc = _handle_exceptions(r.status_code, r.text)
         if exc:
             self.log("Crashed", crashed=True)
             raise exc
+        
+        print("[crawling@home] marked job as done")
 
     
     # Wrapper for `completeJob` (for older workers)
@@ -164,13 +165,14 @@ class HybridClient:
         data = {"token": self.token, "progress": progress, "type": "HYBRID"}
 
         r = _safe_request(self.s.post, self.url + "api/updateProgress", json=data)
-        if not crashed and not noprint:
-            print(f"[crawling@home] logged new progress data: {progress}")
 
         exc = _handle_exceptions(r.status_code, r.text)
         if exc and not crashed:
             self.log("Crashed", crashed=True)
             raise exc
+        
+        if not crashed and not noprint:
+            print(f"[crawling@home] logged new progress data: {progress}")
     
     
     # Client wrapper for `recycler.dump`.
@@ -319,12 +321,13 @@ class CPUClient:
             "url": image_download_url,
             "type": "CPU"
         })
-        print("[crawling@home] marked job as done")
         
         exc = _handle_exceptions(r.status_code, r.text)
         if exc:
             self.log("Crashed", crashed=True)
             raise exc
+        
+        print("[crawling@home] marked job as done")
     
     
     # Logs the string progress into the server.
@@ -332,13 +335,14 @@ class CPUClient:
         data = {"token": self.token, "progress": progress, "type": "CPU"}
 
         r = _safe_request(self.s.post, self.url + "api/updateProgress", json=data)
-        if not crashed and not noprint:
-            print(f"[crawling@home] logged new progress data: {progress}")
 
         exc = _handle_exceptions(r.status_code, r.text)
         if exc and not crashed:
             self.log("Crashed", crashed=True)
             raise exc
+        
+        if not crashed and not noprint:
+            print(f"[crawling@home] logged new progress data: {progress}")
     
     
     # Client wrapper for `recycler.dump`.
@@ -509,12 +513,13 @@ class GPUClient:
     # Uploads the image download URL for the GPU workers to use, marking the CPU job complete.
     def completeJob(self, total_scraped : int) -> None:
         r = _safe_request(self.s.post, self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "GPU"})
-        print("[crawling@home] marked job as done")
         
         exc = _handle_exceptions(r.status_code, r.text)
         if exc:
             self.log("Crashed", crashed=True)
             raise exc
+        
+        print("[crawling@home] marked job as done")
     
     
     # Logs the string progress into the server.
@@ -522,13 +527,14 @@ class GPUClient:
         data = {"token": self.token, "progress": progress, "type": "GPU"}
 
         r = _safe_request(self.s.post, self.url + "api/updateProgress", json=data)
-        if not crashed and not noprint:
-            print(f"[crawling@home] logged new progress data: {progress}")
 
         exc = _handle_exceptions(r.status_code, r.text)
         if exc and not crashed:
             self.log("Crashed", crashed=True)
             raise exc
+        
+        if not crashed and not noprint:
+            print(f"[crawling@home] logged new progress data: {progress}")
     
     
     # Client wrapper for `recycler.dump`.
