@@ -23,15 +23,17 @@ def _safe_request(function, *args, **kwargs) -> Response:
         sleep(60)
         return _safe_request(function, *args, **kwargs)
 
-def _handle_exceptions(status_code: int, text: str) -> None:
-    elif status_code == 404:
-        raise WorkerTimedOutError("[crawling@home] It appears the worker instance timed out. (status 404)")
-    elif status_code == 403:
-        raise ZeroJobError("[crawling@home] Either there was an error finding a job, or there are no more jobs remaining. (status 403)")
+def _handle_exceptions(status_code: int, text: str) -> Optional[Exception]:
+    if status_code == 200:
+        return None
     elif status_code == 400:
-        raise ValueError("[crawling@home] The worker provided an invalid input to a request. (status 400)")
+        return ValueError("[crawling@home] The worker provided an invalid input to a request. (status 400)")
+    elif status_code == 403:
+        return ZeroJobError("[crawling@home] Either there was an error finding a job, or there are no more jobs remaining. (status 403)")
+    elif status_code == 404:
+        return WorkerTimedOutError("[crawling@home] It appears the worker instance timed out. (status 404)")
     else:
-        raise ServerError(f"[crawling@home] A server error occured. (status {status_code})\n{text}\n")
+        return ServerError(f"[crawling@home] A server error occured. (status {status_code})\n{text}\n")
     
     
 
@@ -53,12 +55,10 @@ class HybridClient:
         payload = {"nickname": nickname, "type": "HYBRID"}
         r = _safe_request(self.s.get, self.url + "api/new", params=payload)
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-        _handle_exceptions(r.status_code, r.text)
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
         print("[crawling@home] connected to crawling@home server")
         data = r.json()
@@ -74,12 +74,10 @@ class HybridClient:
     def updateUploadServer(self) -> None:
         r = _safe_request(self.s.get, self.url + "api/getUploadAddress", params={"type": "HYBRID"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
         self.upload_address = r.text
         
@@ -90,12 +88,10 @@ class HybridClient:
     def jobCount(self) -> int:
         r = _safe_request(self.s.get, self.url + "api/jobCount", params={"type": "HYBRID"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
         count = int(r.text)
         
@@ -110,16 +106,10 @@ class HybridClient:
 
         r = _safe_request(self.s.post, self.url + "api/newJob", json={"token": self.token, "type": "HYBRID"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            
-            if r.status_code == 503:
-                raise ZeroJobError(f"{r.text}\n")
-            
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
         else:
             data = r.json()
             self.shard = data["url"]
@@ -157,12 +147,10 @@ class HybridClient:
         r = _safe_request(self.s.post, self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "HYBRID"})
         print("[crawling@home] marked job as done")
         
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
     
     # Wrapper for `completeJob` (for older workers)
@@ -179,12 +167,10 @@ class HybridClient:
         if not crashed and not noprint:
             print(f"[crawling@home] logged new progress data: {progress}")
 
-        if r.status_code != 200 and not crashed:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc and not crashed:
+            self.log("Crashed", crashed=True)
+            raise exc
     
     
     # Client wrapper for `recycler.dump`.
@@ -205,12 +191,10 @@ class HybridClient:
     def isAlive(self) -> bool:
         r = _safe_request(self.s.post, self.url + "api/validateWorker", json={"token": self.token, "type": "HYBRID"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
         else:
             return ("True" in r.text)
     
@@ -241,12 +225,10 @@ class CPUClient:
         payload = {"nickname": nickname, "type": "CPU"}
         r = _safe_request(self.s.get, self.url + "api/new", params=payload)
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
         print("[crawling@home] connected to crawling@home server")
         data = r.json()
@@ -262,12 +244,10 @@ class CPUClient:
     def updateUploadServer(self) -> None:
         r = _safe_request(self.s.get, self.url + "api/getUploadAddress", params={"type": "CPU"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
         self.upload_address = r.text
         
@@ -278,12 +258,10 @@ class CPUClient:
     def jobCount(self) -> int:
         r = _safe_request(self.s.get, self.url + "api/jobCount", params={"type": "CPU"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
         count = int(r.text)
         
@@ -298,16 +276,10 @@ class CPUClient:
 
         r = _safe_request(self.s.post, self.url + "api/newJob", json={"token": self.token, "type": "CPU"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            
-            if r.status_code == 503:
-                raise ZeroJobError(f"{r.text}\n")
-            
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
         else:
             data = r.json()
             self.shard = data["url"]
@@ -349,12 +321,10 @@ class CPUClient:
         })
         print("[crawling@home] marked job as done")
         
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
     
     
     # Logs the string progress into the server.
@@ -365,12 +335,10 @@ class CPUClient:
         if not crashed and not noprint:
             print(f"[crawling@home] logged new progress data: {progress}")
 
-        if r.status_code != 200 and not crashed:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc and not crashed:
+            self.log("Crashed", crashed=True)
+            raise exc
     
     
     # Client wrapper for `recycler.dump`.
@@ -392,12 +360,10 @@ class CPUClient:
     def isAlive(self) -> bool:
         r = _safe_request(self.s.post, self.url + "api/validateWorker", json={"token": self.token, "type": "CPU"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
         else:
             return ("True" in r.text)
     
@@ -427,12 +393,10 @@ class GPUClient:
         payload = {"nickname": nickname, "type": "GPU"}
         r = _safe_request(self.s.get, self.url + "api/new", params=payload)
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
         print("[crawling@home] connected to crawling@home server")
         data = r.json()
@@ -448,12 +412,10 @@ class GPUClient:
     def updateUploadServer(self) -> None:
         r = _safe_request(self.s.get, self.url + "api/getUploadAddress", params={"type": "GPU"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
         self.upload_address = r.text
         
@@ -464,12 +426,10 @@ class GPUClient:
     def jobCount(self) -> int:
         r = _safe_request(self.s.get, self.url + "api/jobCount", params={"type": "GPU"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
 
         count = int(r.text)
         
@@ -484,16 +444,10 @@ class GPUClient:
 
         r = _safe_request(self.s.post, self.url + "api/newJob", json={"token": self.token, "type": "GPU"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            
-            if r.status_code == 503:
-                raise ZeroJobError(f"{r.text}\n")
-                
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
         else:
             data = r.json()
             self.shard = data["url"]
@@ -557,12 +511,10 @@ class GPUClient:
         r = _safe_request(self.s.post, self.url + "api/markAsDone", json={"token": self.token, "count": total_scraped, "type": "GPU"})
         print("[crawling@home] marked job as done")
         
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
     
     
     # Logs the string progress into the server.
@@ -573,12 +525,10 @@ class GPUClient:
         if not crashed and not noprint:
             print(f"[crawling@home] logged new progress data: {progress}")
 
-        if r.status_code != 200 and not crashed:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc and not crashed:
+            self.log("Crashed", crashed=True)
+            raise exc
     
     
     # Client wrapper for `recycler.dump`.
@@ -600,12 +550,10 @@ class GPUClient:
     def isAlive(self) -> bool:
         r = _safe_request(self.s.post, self.url + "api/validateWorker", json={"token": self.token, "type": "GPU"})
 
-        if r.status_code != 200:
-            try:
-                self.log("Crashed", crashed=True)
-            except:
-                pass
-            raise ServerError(f"[crawling@home] Something went wrong, http response code {r.status_code}\n{r.text}\n")
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
         else:
             return ("True" in r.text)
     
