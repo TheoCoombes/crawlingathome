@@ -121,22 +121,22 @@ class HybridClient:
     
     
     # Downloads the current job's shard to the current directory (./shard.wat)
-    def downloadShard(self) -> None:
+    def downloadShard(self, path="") -> None:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard", noprint=True)
 
         with self.s.get(self.shard, stream=True) as r:
             r.raise_for_status()
-            with open("temp.gz", 'w+b') as f:
+            with open(path + "temp.gz", 'w+b') as f:
                 for chunk in r.iter_content(chunk_size=8192): 
                     f.write(chunk)
         
-        with gzip.open('temp.gz', 'rb') as f_in:
-            with open('shard.wat', 'w+b') as f_out:
+        with gzip.open(path + 'temp.gz', 'rb') as f_in:
+            with open(path + 'shard.wat', 'w+b') as f_out:
                 shutil.copyfileobj(f_in, f_out)
         
         sleep(1) # Causes errors otherwise?
-        os.remove("temp.gz")
+        os.remove(path + "temp.gz")
 
         self.log("Downloaded shard", noprint=True)
         print("[crawling@home] finished downloading shard")
@@ -293,22 +293,22 @@ class CPUClient:
     
     
     # Downloads the current job's shard to the current directory (./shard.wat)
-    def downloadShard(self) -> None:
+    def downloadShard(self, path="") -> None:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard", noprint=True)
 
         with self.s.get(self.shard, stream=True) as r:
             r.raise_for_status()
-            with open("temp.gz", 'w+b') as f:
+            with open(path + "temp.gz", 'w+b') as f:
                 for chunk in r.iter_content(chunk_size=8192): 
                     f.write(chunk)
             
-        with gzip.open('temp.gz', 'rb') as f_in:
-            with open('shard.wat', 'w+b') as f_out:
+        with gzip.open(path + 'temp.gz', 'rb') as f_in:
+            with open(path + 'shard.wat', 'w+b') as f_out:
                 shutil.copyfileobj(f_in, f_out)
             
         sleep(1) # Causes errors otherwise?
-        os.remove("temp.gz")
+        os.remove(path + "temp.gz")
 
         self.log("Downloaded shard", noprint=True)
         print("[crawling@home] finished downloading shard")
@@ -474,23 +474,23 @@ class GPUClient:
     
     
     # Downloads the CPU worker's processed images to the ./images/ (`path`) directory
-    def downloadShard(self) -> None:
+    def downloadShard(self, path="") -> None:
         print("[crawling@home] downloading shard...")
         self.log("Downloading shard", noprint=True)
 
         if self.shard.startswith('http'):
             with self.s.get(self.shard, stream=True) as r:
                 r.raise_for_status()
-                with open("temp.gz", 'w+b') as f:
+                with open(path + "temp.gz", 'w+b') as f:
                     for chunk in r.iter_content(chunk_size=8192): 
                         f.write(chunk)
             
-            with gzip.open('temp.gz', 'rb') as f_in:
-                with open('shard.wat', 'w+b') as f_out:
+            with gzip.open(path + 'temp.gz', 'rb') as f_in:
+                with open(path + 'shard.wat', 'w+b') as f_out:
                     shutil.copyfileobj(f_in, f_out)
             
             sleep(1) # Causes errors otherwise?
-            os.remove("temp.gz")
+            os.remove(path + "temp.gz")
         elif self.shard.startswith('rsync'):
             uid = self.shard.split('rsync', 1)[-1].strip()
             resp = 1
