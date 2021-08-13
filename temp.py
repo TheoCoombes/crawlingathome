@@ -1,11 +1,13 @@
 from requests import session
+
+from .errors import WorkerTimedOutError
 from .core import CPUClient
+
 
 class TempCPUWorker:
     def __init__(self,
             url: str = "http://crawlingathome.duckdns.org/",
-            nickname: str = "anonymous",
-            password: str = "<admin password goes here>"):
+            nickname: str = "anonymous"):
         
         if url[-1] != "/":
             url += "/"
@@ -13,7 +15,6 @@ class TempCPUWorker:
         self.s = session()
         self.url = url
         self.nickname = nickname
-        self.password = password
         
         self.completed = 0
         
@@ -22,7 +23,11 @@ class TempCPUWorker:
         
     
     def log(self, msg: str):
-        self._c.log(f"{msg} | Completed: {self.completed:,}", noprint=True)
+        try:
+            self._c.log(f"{msg} | Completed: {self.completed:,}", noprint=True)
+        except WorkerTimedOutError:
+            self._c = CPUClient(self.url, self.nickname)
+            self.log(msg)
     
     
     def newJob(self):
@@ -35,7 +40,6 @@ class TempCPUWorker:
             
             # verify
             r = self.s.post(self.url + "custom/lookup-wat", json={
-                "password": self.password,
                 "url": wat
             }).json()
             
@@ -53,7 +57,6 @@ class TempCPUWorker:
     
     def completeJob(self, urls: list):
         r = self.s.post(self.url + "custom/markasdone-cpu", json={
-            "password": self.password,
             "urls": urls,
             "shards": [shard[0] for shard in self.shards],
             "nickname": self.nickname
