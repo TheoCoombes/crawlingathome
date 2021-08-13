@@ -24,12 +24,16 @@ class TempCPUWorker:
         self.log("Waiting for new job...")
         
     
-    def log(self, msg: str):
+    def log(self, msg: str) -> None:
         try:
             self._c.log(f"{msg} | Completed: {self.completed:,}", noprint=True)
         except WorkerTimedOutError:
             self._c = CPUClient(self.url, self.nickname)
             self.log(msg)
+    
+    
+    def jobCount(self) -> int:
+        return self._c.jobCount()
     
     
     def downloadShard(self, path="") -> None:
@@ -62,7 +66,7 @@ class TempCPUWorker:
             self.updateUploadServer()
     
     
-    def newJob(self):
+    def newJob(self) -> None:
         while True:
             wat = self.s.get(self.url + "custom/get-cpu-wat").text
             if not "http" in wat:
@@ -87,7 +91,7 @@ class TempCPUWorker:
                     self.log("Recieved new jobs.")
     
     
-    def completeJob(self, urls: list):
+    def completeJob(self, urls: list) -> None:
         r = self.s.post(self.url + "custom/markasdone-cpu", json={
             "urls": urls,
             "shards": [shard[0] for shard in self.shards],
@@ -95,6 +99,6 @@ class TempCPUWorker:
         }).json()
         
         if r["status"] == "success":
-            self.completed += 2
+            self.completed += r["completed"]
         
         self.log("Marked jobs as done.")
