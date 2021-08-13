@@ -91,7 +91,7 @@ class TempCPUWorker:
                     self.log("Recieved new jobs.")
     
     
-    def completeJob(self, urls: list) -> None:
+    def completeJob(self, urls: dict) -> None:
         r = self.s.post(self.url + "custom/markasdone-cpu", json={
             "urls": urls,
             "shards": [shard[0] for shard in self.shards],
