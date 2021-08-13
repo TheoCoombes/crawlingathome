@@ -89,6 +89,7 @@ class TempCPUWorker:
                     self.shards = shards
                     self.wat = wat
                     self.log("Recieved new jobs")
+                    break
     
     
     def completeJob(self, urls: dict) -> None:
