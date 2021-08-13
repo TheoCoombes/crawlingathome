@@ -3,7 +3,7 @@
 
 A client library for Crawling@Home's effort to filter CommonCrawl with CLIP, building a large scale image-text dataset.
 * Server Repo: [TheoCoombes/crawlingathome-server](https://github.com/TheoCoombes/crawlingathome-server)
-* Worker Repo: [Wikidepia/crawlingathome-worker](https://github.com/Wikidepia/crawlingathome-worker)
+* Worker Repo: [ARKSeal/crawlingathome-worker](https://github.com/ARKSeal/crawlingathome-worker)
 * Live Dashboard: http://crawlingathome.duckdns.org/
 
 # Prerequisites
