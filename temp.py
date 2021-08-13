@@ -21,7 +21,7 @@ class TempCPUWorker:
         self._c = CPUClient(self.url, self.nickname)
         self.upload_address = self._c.upload_address
         
-        self.log("Waiting for new job...")
+        self.log("Waiting for new job")
         
     
     def log(self, msg: str) -> None:
@@ -36,9 +36,9 @@ class TempCPUWorker:
         return self._c.jobCount()
     
     
-    def downloadShard(self, path="") -> None:
+    def downloadWat(self, path="") -> None:
         print(f"{printTS()} downloading shard...")
-        self.log("Downloading shard")
+        self.log("Downloading WAT")
 
         with self.s.get(self.shard, stream=True) as r:
             r.raise_for_status()
@@ -53,7 +53,7 @@ class TempCPUWorker:
         sleep(1) # Causes errors otherwise?
         os.remove(path + "temp.gz")
 
-        self.log("Downloaded shard")
+        self.log("Downloaded WAT")
         print(f"{printTS()} finished downloading shard")
     
     
@@ -71,7 +71,7 @@ class TempCPUWorker:
             wat = self.s.get(self.url + "custom/get-cpu-wat").text
             if not "http" in wat:
                 print("[crawling@home] something went wrong when finding a job, breaking loop...")
-                self.log("Crashed.")
+                self.log("Crashed")
                 break
             
             # verify
@@ -88,7 +88,7 @@ class TempCPUWorker:
                 else:
                     self.shards = shards
                     self.wat = wat
-                    self.log("Recieved new jobs.")
+                    self.log("Recieved new jobs")
     
     
     def completeJob(self, urls: dict) -> None:
@@ -101,4 +101,7 @@ class TempCPUWorker:
         if r["status"] == "success":
             self.completed += r["completed"]
         
-        self.log("Marked jobs as done.")
+        self.shards = None
+        self.wat = None
+        
+        self.log("Marked jobs as done")
