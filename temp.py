@@ -40,7 +40,7 @@ class TempCPUWorker:
         print(f"{printTS()} downloading shard...")
         self.log("Downloading WAT")
 
-        with self.s.get(self.shard, stream=True) as r:
+        with self.s.get(self.wat, stream=True) as r:
             r.raise_for_status()
             with open(path + "temp.gz", 'w+b') as f:
                 for chunk in r.iter_content(chunk_size=8192): 
