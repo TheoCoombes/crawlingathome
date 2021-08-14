@@ -1,4 +1,6 @@
 from requests import session
+import os, shutil, gzip
+from time import sleep
 
 from .errors import WorkerTimedOutError
 from .core import CPUClient, printTS
