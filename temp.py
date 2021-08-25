@@ -3,7 +3,8 @@ import os, shutil, gzip
 from time import sleep
 
 from .errors import WorkerTimedOutError
-from .core import CPUClient, printTS
+from .core import CPUClient
+from .core import print as cahprint
 
 
 class TempCPUWorker:
@@ -39,7 +40,7 @@ class TempCPUWorker:
     
     
     def downloadWat(self, path="") -> None:
-        print(f"{printTS()} downloading shard...")
+        cahprint("downloading shard...")
         self.log("Downloading WAT")
 
         with self.s.get(self.wat, stream=True) as r:
@@ -56,7 +57,7 @@ class TempCPUWorker:
         os.remove(path + "temp.gz")
 
         self.log("Downloaded WAT")
-        print(f"{printTS()} finished downloading shard")
+        cahprint("finished downloading shard")
     
     
     def updateUploadServer(self) -> None:
@@ -72,7 +73,7 @@ class TempCPUWorker:
         while True:
             wat = self.s.get(self.url + "custom/get-cpu-wat").text
             if not "http" in wat:
-                print("[crawling@home] something went wrong when finding a job, breaking loop...")
+                cahprint("something went wrong when finding a job, breaking loop...")
                 self.log("Crashed")
                 break
             
