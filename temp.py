@@ -25,7 +25,14 @@ class TempCPUWorker:
         self.upload_address = self._c.upload_address
         
         self.log("Waiting for new job")
+
+    def isAlive(self) -> bool:
+        return self._c.isAlive()
+    
+    def recreate(self) -> None:
+        self._c.recreate()
         
+        self.upload_address = self._c.upload_address
     
     def log(self, msg: str) -> None:
         try:
