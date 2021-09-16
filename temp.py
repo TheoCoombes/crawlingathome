@@ -10,7 +10,10 @@ from .core import print as cahprint
 class TempCPUWorker:
     def __init__(self,
             url: str = "http://crawlingathome.duckdns.org/",
-            nickname: str = "anonymous") -> None:
+            nickname: str = "anonymous", _recycled: bool = False) -> None:
+        
+        if _recycled:
+            return
         
         if url[-1] != "/":
             url += "/"
@@ -25,6 +28,10 @@ class TempCPUWorker:
         self.upload_address = self._c.upload_address
         
         self.log("Waiting for new job")
+    
+    def dump(self) -> dict:
+        from .recycler import dump
+        return dump(self)
 
     def isAlive(self) -> bool:
         return self._c.isAlive()
