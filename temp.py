@@ -43,7 +43,7 @@ class TempCPUWorker:
     
     def log(self, msg: str) -> None:
         try:
-            self._c.log(f"{msg} | Completed: {self.completed:,}", noprint=True)
+            self._c.log(msg, noprint=True)
         except WorkerTimedOutError:
             self._c = CPUClient(self.url, self.nickname)
             self.log(msg)
@@ -113,7 +113,8 @@ class TempCPUWorker:
         r = self.s.post(self.url + "custom/markasdone-cpu", json={
             "urls": urls,
             "shards": [shard[0] for shard in self.shards],
-            "nickname": self.nickname
+            "nickname": self.nickname,
+            "token": self._c.token
         }).json()
         
         if r["status"] == "success":
