@@ -196,4 +196,4 @@ class Client:
 
 # Creates and returns a new client instance.
 def init(url="http://crawlingathome.duckdns.org/", device_id="<machine>:<device>.<worker>") -> Client:     
-    return Client(url, nickname)
+    return Client(url, device_id)
