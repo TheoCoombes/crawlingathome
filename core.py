@@ -176,6 +176,17 @@ class Client:
         else:
             return ("True" in r.text)
     
+    # Returns True if the worker has been flagged to be killed, otherwise returns False.
+    def shouldDie(self) -> bool:
+        r = _safe_request(self.s.post, self.url + "api/shouldKill", json={"token": self.token})
+
+        exc = _handle_exceptions(r.status_code, r.text)
+        if exc:
+            self.log("Crashed", crashed=True)
+            raise exc
+        else:
+            return ("True" in r.text)
+    
     
     # Removes the node instance from the server, ending all current jobs.
     def bye(self) -> None:
