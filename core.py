@@ -56,7 +56,7 @@ class Client:
         self.url = url
         self.nickname = nickname
 
-        print("connecting to BLIP@home server...")
+        print("connecting to captions@home server...")
         payload = {"nickname": nickname}
         r = _safe_request(self.s.get, self.url + "api/new", params=payload)
 
@@ -65,7 +65,7 @@ class Client:
             self.log("Crashed", crashed=True)
             raise exc
 
-        print("connected to BLIP@home server")
+        print("connected to captions@home server")
         data = r.json()
         self.token = data["token"]
         self.display_name = data["display_name"]
