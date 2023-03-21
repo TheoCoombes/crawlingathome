@@ -1,9 +1,9 @@
-# Crawling@Home Client
-[![Discord Chat](https://img.shields.io/discord/823813159592001537?color=5865F2&logo=discord&logoColor=white)](https://discord.gg/dall-e)
-
-NOTE: This repo has now been rewritten into a general purpose distributed compute system, DistCompute:
+NOTE: This repo has now been rewritten into a general purpose distributed compute job manager, see below:
 * DistCompute Client: [TheoCoombes/distcompute-client](https://github.com/TheoCoombes/distcompute-client)
 * DistCompute Tracker Server: [TheoCoombes/distcompute-tracker](https://github.com/TheoCoombes/distcompute-tracker)
+
+# Crawling@Home Client
+[![Discord Chat](https://img.shields.io/discord/823813159592001537?color=5865F2&logo=discord&logoColor=white)](https://discord.gg/dall-e)
 
 A client library for Crawling@Home's effort to filter CommonCrawl with CLIP, building a large scale image-text dataset.
 * Server Repo: [TheoCoombes/crawlingathome-server](https://github.com/TheoCoombes/crawlingathome-server)
